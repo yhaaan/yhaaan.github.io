@@ -68,12 +68,22 @@ test("does not change timestamps when saved content is identical", async () => {
   payload.lenses[0] = {
     ...payload.lenses[0],
     title: "같은 제목",
+    content: "같은 내용",
+    keywords: ["같은", "키워드"],
+    notes: "같은 메모",
     updatedAt: "2026-08-03T00:00:00.000Z",
   };
 
   const updated = updateLensPayload(
     payload,
-    { mode: "save", number: 1, title: "같은 제목" },
+    {
+      mode: "save",
+      number: 1,
+      title: "같은 제목",
+      content: "같은 내용",
+      keywords: "같은, 키워드",
+      notes: "같은 메모",
+    },
     "2026-08-04T00:00:00.000Z",
   );
 
