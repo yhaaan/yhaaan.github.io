@@ -36,6 +36,9 @@ jobs:
       - name: Build static site
         run: npm run build
 
+      - name: Verify public read-only build
+        run: node --test tests/rendered-html.test.mjs
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

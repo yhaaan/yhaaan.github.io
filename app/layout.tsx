@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
-const SITE_TITLE = "렌즈 노트 — 개인 게임 디자인 서재";
+const SITE_TITLE = "렌즈 노트 — 게임 디자인 렌즈 컬렉션";
 const SITE_DESCRIPTION =
-  "113개의 게임 디자인 렌즈를 직접 기록하고 번호와 키워드로 검색하는 개인 학습 도구입니다.";
+  "운영자가 공개한 113개의 창작 게임 디자인 렌즈를 번호와 키워드로 탐색하는 읽기 전용 컬렉션입니다.";
 
 const [repositoryOwner = "", repositoryName = ""] =
   process.env.GITHUB_REPOSITORY?.split("/") ?? [];
@@ -27,8 +27,8 @@ export const metadata: Metadata = {
   title: SITE_TITLE,
   description: SITE_DESCRIPTION,
   robots: {
-    index: false,
-    follow: false,
+    index: true,
+    follow: true,
   },
   icons: {
     icon: `${siteUrl}/favicon.svg`,
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
         url: `${siteUrl}/og-lens-note.png`,
         width: 1731,
         height: 909,
-        alt: "빈 렌즈 카드와 돋보기 일러스트레이션",
+        alt: "렌즈 카드와 돋보기 일러스트레이션",
       },
     ],
   },
