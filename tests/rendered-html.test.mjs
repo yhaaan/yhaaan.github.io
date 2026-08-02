@@ -65,7 +65,7 @@ test("includes a repository-aware and verified GitHub Pages deployment", async (
   assert.match(config, /trailingSlash:\s*true/);
   assert.match(viteConfig, /GITHUB_REPOSITORY/);
   assert.match(viteConfig, /githubPagesAssetBase/);
-  assert.match(workflow, /node --test tests\/rendered-html\.test\.mjs/);
+  assert.match(workflow, /run:\s*npm run test:unit/);
   assert.match(workflow, /actions\/deploy-pages@v4/);
   assert.match(workflow, /path:\s*\.\/dist\/client/);
 });

@@ -1,0 +1,121 @@
+name: 렌즈 추가·수정
+run-name: "렌즈 #${{ inputs.number }} · ${{ inputs.mode }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      number:
+        description: "렌즈 번호 (1~113)"
+        required: true
+        type: string
+      mode:
+        description: "save=입력값으로 저장, clear=이 번호의 내용 비우기"
+        required: true
+        default: save
+        type: choice
+        options:
+          - save
+          - clear
+      title:
+        description: "제목 (clear 작업에서는 무시됨)"
+        required: false
+        type: string
+      content:
+        description: "내용 · 줄바꿈은 \\n으로 입력"
+        required: false
+        type: string
+      keywords:
+        description: "키워드 · 쉼표로 구분"
+        required: false
+        type: string
+      notes:
+        description: "보충 메모 · 줄바꿈은 \\n으로 입력"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  update-and-deploy:
+    name: 렌즈 저장 및 사이트 배포
+    if: >-
+      github.actor == github.repository_owner &&
+      github.triggering_actor == github.repository_owner &&
+      github.ref == 'refs/heads/main'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Update lens data
+        env:
+          LENS_MODE: ${{ inputs.mode }}
+          LENS_NUMBER: ${{ inputs.number }}
+          LENS_TITLE: ${{ inputs.title }}
+          LENS_CONTENT: ${{ inputs.content }}
+          LENS_KEYWORDS: ${{ inputs.keywords }}
+          LENS_NOTES: ${{ inputs.notes }}
+        run: node scripts/update-lens.mjs
+
+      - name: Detect data changes
+        id: changes
+        shell: bash
+        run: |
+          if git diff --quiet -- data/lenses.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Build static site
+        run: npm run build
+
+      - name: Verify public build and editor
+        run: npm run test:unit
+
+      - name: Commit lens data
+        if: ${{ steps.changes.outputs.changed == 'true' }}
+        env:
+          LENS_MODE: ${{ inputs.mode }}
+          LENS_NUMBER: ${{ inputs.number }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- data/lenses.json
+          git commit -m "content: ${LENS_MODE} lens #${LENS_NUMBER}"
+          git push origin HEAD:main
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist/client
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
