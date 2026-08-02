@@ -9,7 +9,7 @@
       "number": 1,
       "title": "test",
       "content": "test",
-      "keywords": [test],
+      "keywords": ["test"],
       "notes": "test",
       "favorite": false,
       "updatedAt": null
