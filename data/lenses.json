@@ -7,10 +7,10 @@
   "lenses": [
     {
       "number": 1,
-      "title": "",
-      "content": "",
-      "keywords": [],
-      "notes": "",
+      "title": "test",
+      "content": "test",
+      "keywords": [test],
+      "notes": "test",
       "favorite": false,
       "updatedAt": null
     },
