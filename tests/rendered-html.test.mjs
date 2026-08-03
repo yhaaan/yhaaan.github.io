@@ -65,6 +65,7 @@ test("uses repository defaults and provides browser-local editing", async () => 
   assert.match(source, /className="card-preview-link"/);
   assert.match(source, /openEditor\(viewerNumber, null, true\)/);
   assert.doesNotMatch(source, /dangerouslySetInnerHTML/);
+  assert.doesNotMatch(source, /<h3>내용<\/h3>/);
 });
 
 test("includes a repository-aware and verified GitHub Pages deployment", async () => {

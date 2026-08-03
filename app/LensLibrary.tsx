@@ -1148,7 +1148,6 @@ export function LensLibrary({
             <div className="viewer-scroll">
               {viewedLens.content.trim() ? (
                 <section className="viewer-section">
-                  <h3>내용</h3>
                   <div className="markdown-body">
                     <ReactMarkdown remarkPlugins={[remarkGfm]} skipHtml>
                       {viewedLens.content}
