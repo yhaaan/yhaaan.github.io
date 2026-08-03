@@ -4,23 +4,20 @@ import test from "node:test";
 
 const root = new URL("../", import.meta.url);
 
-test("exports the complete public Korean lens library as static HTML", async () => {
+test("exports the complete Korean lens library as static HTML", async () => {
   const html = await readFile(new URL("dist/client/index.html", root), "utf8");
 
   assert.match(html, /^<!doctype html>/i);
   assert.match(html, /<html[^>]*lang="ko"/i);
-  assert.ok(
-    html.includes("<title>렌즈 노트 — 게임 디자인 렌즈 컬렉션</title>"),
-  );
   assert.match(html, /name="robots" content="index, follow"/i);
-  assert.ok(html.includes("공개 읽기 전용"));
-  assert.ok(html.includes("모든 방문자에게 같은 내용이 표시됩니다"));
+  assert.ok(html.includes("공개 기본값에서 자유롭게 편집할 수 있습니다."));
+  assert.ok(html.includes("운영자의 기본값 위에 나만의 수정본이"));
 
   const cards = html.match(/<article class="lens-card/g) ?? [];
   assert.equal(cards.length, 113);
 });
 
-test("uses a valid repository-backed data file and exposes no visitor editing path", async () => {
+test("uses repository defaults and provides browser-local editing", async () => {
   const [source, pageSource, json] = await Promise.all([
     readFile(new URL("app/LensLibrary.tsx", root), "utf8"),
     readFile(new URL("app/page.tsx", root), "utf8"),
@@ -49,8 +46,13 @@ test("uses a valid repository-backed data file and exposes no visitor editing pa
   );
 
   assert.match(pageSource, /data\/lenses\.json/);
-  assert.doesNotMatch(source, /localStorage|sessionStorage|FileReader|new Blob|createObjectURL/);
-  assert.doesNotMatch(source, /type=["']file["']|<form|contentEditable/);
+  assert.match(source, /localStorage/);
+  assert.match(source, /jesse-lenses:visitor-data:v2/);
+  assert.match(source, /<form/);
+  assert.match(source, /type="file"/);
+  assert.match(source, /new Blob/);
+  assert.match(source, /createObjectURL/);
+  assert.match(source, /restoreDefaults/);
   assert.doesNotMatch(source, /dangerouslySetInnerHTML/);
 });
 
