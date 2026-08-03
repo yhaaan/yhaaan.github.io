@@ -10,7 +10,7 @@ import {
   useRef,
   useState,
 } from "react";
-import ReactMarkdown from "react-markdown";
+import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 const TOTAL_LENSES = 113;
@@ -67,6 +67,31 @@ const normalize = (value: string) =>
     .trim();
 
 const compact = (value: string) => normalize(value).replace(/\s/g, "");
+
+const markdownPreviewComponents: Components = {
+  p: ({ children }) => <>{children} </>,
+  h1: ({ children }) => <>{children} </>,
+  h2: ({ children }) => <>{children} </>,
+  h3: ({ children }) => <>{children} </>,
+  h4: ({ children }) => <>{children} </>,
+  h5: ({ children }) => <>{children} </>,
+  h6: ({ children }) => <>{children} </>,
+  ul: ({ children }) => <>{children}</>,
+  ol: ({ children }) => <>{children}</>,
+  li: ({ children }) => <>• {children} </>,
+  blockquote: ({ children }) => <>{children} </>,
+  pre: ({ children }) => <>{children} </>,
+  table: ({ children }) => <>{children}</>,
+  thead: ({ children }) => <>{children}</>,
+  tbody: ({ children }) => <>{children}</>,
+  tr: ({ children }) => <>{children} </>,
+  th: ({ children }) => <>{children}: </>,
+  td: ({ children }) => <>{children} </>,
+  input: ({ checked }) => <>{checked ? "☑ " : "☐ "}</>,
+  a: ({ children }) => <span className="card-preview-link">{children}</span>,
+  img: ({ alt }) => <>{alt ?? ""}</>,
+  hr: () => <> · </>,
+};
 
 const isFilled = (lens: LensCard) =>
   Boolean(
@@ -1009,6 +1034,8 @@ export function LensLibrary({
           <div className="lens-grid">
             {filteredLenses.map((lens) => {
               const filled = isFilled(lens);
+              const preview = lens.content || lens.notes ||
+                "책을 읽으며 확인한 내용이나 나만의 요약을 기록해 보세요.";
               return (
                 <article
                   key={lens.number}
@@ -1038,7 +1065,13 @@ export function LensLibrary({
                     <span className="card-status">{filled ? "작성됨" : "비어 있음"}</span>
                     <strong>{lens.title || "렌즈 제목을 입력하세요"}</strong>
                     <span className="card-preview">
-                      {lens.content || lens.notes || "책을 읽으며 확인한 내용이나 나만의 요약을 기록해 보세요."}
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        skipHtml
+                        components={markdownPreviewComponents}
+                      >
+                        {preview}
+                      </ReactMarkdown>
                     </span>
                     {lens.keywords.length > 0 && (
                       <span className="keyword-list" aria-label="키워드">

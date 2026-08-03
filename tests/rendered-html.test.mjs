@@ -60,6 +60,9 @@ test("uses repository defaults and provides browser-local editing", async () => 
   assert.match(source, /ReactMarkdown/);
   assert.match(source, /remarkGfm/);
   assert.match(source, /skipHtml/);
+  assert.match(source, /markdownPreviewComponents/);
+  assert.match(source, /components=\{markdownPreviewComponents\}/);
+  assert.match(source, /className="card-preview-link"/);
   assert.match(source, /openEditor\(viewerNumber, null, true\)/);
   assert.doesNotMatch(source, /dangerouslySetInnerHTML/);
 });
