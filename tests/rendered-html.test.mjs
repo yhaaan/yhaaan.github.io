@@ -59,8 +59,9 @@ test("uses repository defaults and provides browser-local editing", async () => 
   assert.match(source, /createObjectURL/);
   assert.match(source, /restoreDefaults/);
   assert.match(source, /const openViewer/);
-  assert.match(source, /viewerScrollYRef/);
-  assert.match(source, /viewerScrollYRef\.current = window\.scrollY/);
+  assert.match(source, /pageScrollYRef\.current = window\.scrollY/);
+  assert.match(source, /window\.history\.scrollRestoration = "manual"/);
+  assert.match(source, /previousScrollRestorationRef/);
   assert.match(source, /focus\(\{ preventScroll: true \}\)/);
   assert.match(source, /window\.scrollTo\(\{ top: scrollY/);
   assert.match(source, /const moveViewer/);

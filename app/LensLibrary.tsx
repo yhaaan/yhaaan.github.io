@@ -243,7 +243,8 @@ export function LensLibrary({
   const editorPanelRef = useRef<HTMLElement>(null);
   const importModeRef = useRef<ImportMode>("merge");
   const returnFocusRef = useRef<HTMLElement | null>(null);
-  const viewerScrollYRef = useRef(0);
+  const pageScrollYRef = useRef(0);
+  const previousScrollRestorationRef = useRef<History["scrollRestoration"] | null>(null);
   const viewerOwnsHistoryRef = useRef(false);
   const closingViewerRef = useRef(false);
   const closingEditorRef = useRef(false);
@@ -366,15 +367,30 @@ export function LensLibrary({
     [lenses, viewerNumber],
   );
 
+  const capturePagePosition = useCallback(() => {
+    pageScrollYRef.current = window.scrollY;
+    previousScrollRestorationRef.current = window.history.scrollRestoration;
+    window.history.scrollRestoration = "manual";
+  }, []);
+
   const restoreTriggerFocus = useCallback(() => {
-    const scrollY = viewerScrollYRef.current;
+    const scrollY = pageScrollYRef.current;
+    const previousScrollRestoration = previousScrollRestorationRef.current;
     window.setTimeout(() => {
-      if (returnFocusRef.current?.isConnected) {
-        returnFocusRef.current.focus({ preventScroll: true });
-      } else {
-        searchRef.current?.focus({ preventScroll: true });
-      }
-      window.scrollTo({ top: scrollY, left: 0, behavior: "auto" });
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          if (returnFocusRef.current?.isConnected) {
+            returnFocusRef.current.focus({ preventScroll: true });
+          } else {
+            searchRef.current?.focus({ preventScroll: true });
+          }
+          window.scrollTo({ top: scrollY, left: 0, behavior: "auto" });
+          if (previousScrollRestoration !== null) {
+            window.history.scrollRestoration = previousScrollRestoration;
+            previousScrollRestorationRef.current = null;
+          }
+        });
+      });
     }, 0);
   }, []);
 
@@ -405,7 +421,7 @@ export function LensLibrary({
     if (!lens) return;
 
     returnFocusRef.current = source ?? (document.activeElement as HTMLElement | null);
-    viewerScrollYRef.current = window.scrollY;
+    capturePagePosition();
     setViewerNumber(number);
 
     const nextHash = "#lens-" + number;
@@ -424,7 +440,7 @@ export function LensLibrary({
     }
 
     window.requestAnimationFrame(() => viewerCloseRef.current?.focus());
-  }, [lenses]);
+  }, [capturePagePosition, lenses]);
 
   const moveViewer = useCallback((direction: -1 | 1) => {
     setViewerNumber((current) => {
@@ -505,14 +521,8 @@ export function LensLibrary({
   const dismissEditor = useCallback(() => {
     setEditorNumber(null);
     setDraft(null);
-    window.setTimeout(() => {
-      if (returnFocusRef.current?.isConnected) {
-        returnFocusRef.current.focus();
-      } else {
-        searchRef.current?.focus();
-      }
-    }, 0);
-  }, []);
+    restoreTriggerFocus();
+  }, [restoreTriggerFocus]);
 
   const closeEditor = useCallback(
     (force = false) => {
@@ -628,6 +638,7 @@ export function LensLibrary({
 
     if (!fromViewer) {
       returnFocusRef.current = source ?? (document.activeElement as HTMLElement | null);
+      capturePagePosition();
     }
     setViewerNumber(null);
     setEditorNumber(number);
@@ -658,7 +669,7 @@ export function LensLibrary({
       );
     }
     window.setTimeout(() => titleRef.current?.focus(), 0);
-  }, [lenses]);
+  }, [capturePagePosition, lenses]);
 
   useEffect(() => {
     if (!ready || initialHashHandledRef.current) return;
