@@ -243,6 +243,7 @@ export function LensLibrary({
   const editorPanelRef = useRef<HTMLElement>(null);
   const importModeRef = useRef<ImportMode>("merge");
   const returnFocusRef = useRef<HTMLElement | null>(null);
+  const viewerScrollYRef = useRef(0);
   const viewerOwnsHistoryRef = useRef(false);
   const closingViewerRef = useRef(false);
   const closingEditorRef = useRef(false);
@@ -366,12 +367,14 @@ export function LensLibrary({
   );
 
   const restoreTriggerFocus = useCallback(() => {
+    const scrollY = viewerScrollYRef.current;
     window.setTimeout(() => {
       if (returnFocusRef.current?.isConnected) {
-        returnFocusRef.current.focus();
+        returnFocusRef.current.focus({ preventScroll: true });
       } else {
-        searchRef.current?.focus();
+        searchRef.current?.focus({ preventScroll: true });
       }
+      window.scrollTo({ top: scrollY, left: 0, behavior: "auto" });
     }, 0);
   }, []);
 
@@ -402,6 +405,7 @@ export function LensLibrary({
     if (!lens) return;
 
     returnFocusRef.current = source ?? (document.activeElement as HTMLElement | null);
+    viewerScrollYRef.current = window.scrollY;
     setViewerNumber(number);
 
     const nextHash = "#lens-" + number;
