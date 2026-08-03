@@ -64,6 +64,8 @@ test("uses repository defaults and provides browser-local editing", async () => 
   assert.match(source, /previousScrollRestorationRef/);
   assert.match(source, /focus\(\{ preventScroll: true \}\)/);
   assert.match(source, /window\.scrollTo\(\{ top: scrollY/);
+  assert.doesNotMatch(source, /window\.history\.back\(\)/);
+  assert.doesNotMatch(source, /window\.history\.pushState\(/);
   assert.match(source, /const moveViewer/);
   assert.match(source, /ArrowLeft/);
   assert.match(source, /ArrowRight/);

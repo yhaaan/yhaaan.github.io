@@ -245,9 +245,6 @@ export function LensLibrary({
   const returnFocusRef = useRef<HTMLElement | null>(null);
   const pageScrollYRef = useRef(0);
   const previousScrollRestorationRef = useRef<History["scrollRestoration"] | null>(null);
-  const viewerOwnsHistoryRef = useRef(false);
-  const closingViewerRef = useRef(false);
-  const closingEditorRef = useRef(false);
   const initialHashHandledRef = useRef(false);
 
   const persistLibrary = useCallback((
@@ -394,22 +391,13 @@ export function LensLibrary({
     }, 0);
   }, []);
 
-  const dismissViewer = useCallback(() => {
-    setViewerNumber(null);
-    restoreTriggerFocus();
-  }, [restoreTriggerFocus]);
-
   const closeViewer = useCallback(() => {
-    if (viewerOwnsHistoryRef.current) {
-      closingViewerRef.current = true;
-      viewerOwnsHistoryRef.current = false;
-      window.history.back();
-      return;
-    }
-
     setViewerNumber(null);
+    const historyState = isRecord(window.history.state)
+      ? window.history.state
+      : {};
     window.history.replaceState(
-      null,
+      { ...historyState, lensViewer: undefined },
       "",
       window.location.pathname + window.location.search,
     );
@@ -425,19 +413,14 @@ export function LensLibrary({
     setViewerNumber(number);
 
     const nextHash = "#lens-" + number;
-    if (window.location.hash !== nextHash) {
-      const historyState = isRecord(window.history.state)
-        ? window.history.state
-        : {};
-      window.history.pushState(
-        { ...historyState, lensViewer: number },
-        "",
-        nextHash,
-      );
-      viewerOwnsHistoryRef.current = true;
-    } else {
-      viewerOwnsHistoryRef.current = false;
-    }
+    const historyState = isRecord(window.history.state)
+      ? window.history.state
+      : {};
+    window.history.replaceState(
+      { ...historyState, lensViewer: number },
+      "",
+      nextHash,
+    );
 
     window.requestAnimationFrame(() => viewerCloseRef.current?.focus());
   }, [capturePagePosition, lenses]);
@@ -452,9 +435,7 @@ export function LensLibrary({
         ? window.history.state
         : {};
       window.history.replaceState(
-        viewerOwnsHistoryRef.current
-          ? { ...historyState, lensViewer: next }
-          : historyState,
+        { ...historyState, lensViewer: next },
         "",
         "#lens-" + next,
       );
@@ -504,19 +485,12 @@ export function LensLibrary({
       }
     };
 
-    const handlePopState = () => {
-      if (closingViewerRef.current) closingViewerRef.current = false;
-      dismissViewer();
-    };
-
     window.addEventListener("keydown", handleViewerKeyDown);
-    window.addEventListener("popstate", handlePopState);
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleViewerKeyDown);
-      window.removeEventListener("popstate", handlePopState);
     };
-  }, [closeViewer, dismissViewer, moveViewer, viewerNumber]);
+  }, [closeViewer, moveViewer, viewerNumber]);
 
   const dismissEditor = useCallback(() => {
     setEditorNumber(null);
@@ -532,22 +506,17 @@ export function LensLibrary({
         !window.confirm("저장하지 않은 변경사항이 있습니다. 편집을 닫을까요?")
       ) return;
 
-      const ownsHistoryEntry =
-        isRecord(window.history.state) &&
-        window.history.state.lensEditor === editorNumber;
-      if (ownsHistoryEntry) {
-        closingEditorRef.current = true;
-        window.history.back();
-      } else {
-        dismissEditor();
-        window.history.replaceState(
-          window.history.state,
-          "",
-          window.location.pathname + window.location.search,
-        );
-      }
+      dismissEditor();
+      const historyState = isRecord(window.history.state)
+        ? window.history.state
+        : {};
+      window.history.replaceState(
+        { ...historyState, lensEditor: undefined, lensViewer: undefined },
+        "",
+        window.location.pathname + window.location.search,
+      );
     },
-    [dismissEditor, draft, editorNumber, originalLens],
+    [dismissEditor, draft, originalLens],
   );
 
   useEffect(() => {
@@ -596,37 +565,11 @@ export function LensLibrary({
       event.returnValue = "";
     };
 
-    const handlePopState = () => {
-      if (closingEditorRef.current) {
-        closingEditorRef.current = false;
-        dismissEditor();
-        return;
-      }
-
-      if (
-        hasUnsavedChanges &&
-        !window.confirm("저장하지 않은 변경사항이 있습니다. 편집을 닫을까요?")
-      ) {
-        const historyState = isRecord(window.history.state)
-          ? window.history.state
-          : {};
-        window.history.pushState(
-          { ...historyState, lensEditor: editorNumber },
-          "",
-          `#lens-${editorNumber}`,
-        );
-        return;
-      }
-      dismissEditor();
-    };
-
     window.addEventListener("beforeunload", handleBeforeUnload);
-    window.addEventListener("popstate", handlePopState);
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
-      window.removeEventListener("popstate", handlePopState);
     };
-  }, [dismissEditor, draft, editorNumber, originalLens]);
+  }, [draft, editorNumber, originalLens]);
 
   const openEditor = useCallback((
     number: number,
@@ -649,25 +592,11 @@ export function LensLibrary({
       ? window.history.state
       : {};
 
-    if (fromViewer) {
-      const viewerOwnsHistory = viewerOwnsHistoryRef.current;
-      viewerOwnsHistoryRef.current = false;
-      window.history.replaceState(
-        {
-          ...historyState,
-          lensViewer: undefined,
-          lensEditor: viewerOwnsHistory ? number : undefined,
-        },
-        "",
-        nextHash,
-      );
-    } else if (window.location.hash !== nextHash) {
-      window.history.pushState(
-        { ...historyState, lensEditor: number },
-        "",
-        nextHash,
-      );
-    }
+    window.history.replaceState(
+      { ...historyState, lensViewer: undefined, lensEditor: number },
+      "",
+      nextHash,
+    );
     window.setTimeout(() => titleRef.current?.focus(), 0);
   }, [capturePagePosition, lenses]);
 
