@@ -79,3 +79,12 @@ test("includes a repository-aware and verified GitHub Pages deployment", async (
   assert.match(workflow, /actions\/deploy-pages@v4/);
   assert.match(workflow, /path:\s*\.\/dist\/client/);
 });
+test("keeps Markdown list markers visible after the global CSS reset", async () => {
+  const css = await readFile(new URL("app/globals.css", root), "utf8");
+
+  assert.ok(css.includes(".markdown-body ul {"));
+  assert.ok(css.includes("list-style: disc outside;"));
+  assert.ok(css.includes(".markdown-body ol {"));
+  assert.ok(css.includes("list-style: decimal outside;"));
+  assert.ok(css.includes(".markdown-body .contains-task-list"));
+});
