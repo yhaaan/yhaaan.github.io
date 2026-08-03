@@ -10,6 +10,8 @@ import {
   useRef,
   useState,
 } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 const TOTAL_LENSES = 113;
 const STORAGE_KEY = "jesse-lenses:visitor-data:v2";
@@ -204,15 +206,20 @@ export function LensLibrary({
   const [backupAt, setBackupAt] = useState<string | null>(null);
   const [sessionStartedAt] = useState(Date.now);
   const [notice, setNotice] = useState("");
+  const [viewerNumber, setViewerNumber] = useState<number | null>(null);
   const [editorNumber, setEditorNumber] = useState<number | null>(null);
   const [draft, setDraft] = useState<LensDraft | null>(null);
 
   const searchRef = useRef<HTMLInputElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const viewerPanelRef = useRef<HTMLElement>(null);
+  const viewerCloseRef = useRef<HTMLButtonElement>(null);
   const editorPanelRef = useRef<HTMLElement>(null);
   const importModeRef = useRef<ImportMode>("merge");
   const returnFocusRef = useRef<HTMLElement | null>(null);
+  const viewerOwnsHistoryRef = useRef(false);
+  const closingViewerRef = useRef(false);
   const closingEditorRef = useRef(false);
   const initialHashHandledRef = useRef(false);
 
@@ -284,6 +291,7 @@ export function LensLibrary({
   useEffect(() => {
     const handleShortcut = (event: globalThis.KeyboardEvent) => {
       if (
+        viewerNumber === null &&
         editorNumber === null &&
         (event.metaKey || event.ctrlKey) &&
         event.key.toLowerCase() === "k"
@@ -294,7 +302,7 @@ export function LensLibrary({
     };
     window.addEventListener("keydown", handleShortcut);
     return () => window.removeEventListener("keydown", handleShortcut);
-  }, [editorNumber]);
+  }, [editorNumber, viewerNumber]);
 
   useEffect(() => {
     const handleStorage = (event: StorageEvent) => {
@@ -326,6 +334,144 @@ export function LensLibrary({
     () => (editorNumber === null ? null : lenses[editorNumber - 1] ?? null),
     [editorNumber, lenses],
   );
+
+  const viewedLens = useMemo(
+    () => (viewerNumber === null ? null : lenses[viewerNumber - 1] ?? null),
+    [lenses, viewerNumber],
+  );
+
+  const restoreTriggerFocus = useCallback(() => {
+    window.setTimeout(() => {
+      if (returnFocusRef.current?.isConnected) {
+        returnFocusRef.current.focus();
+      } else {
+        searchRef.current?.focus();
+      }
+    }, 0);
+  }, []);
+
+  const dismissViewer = useCallback(() => {
+    setViewerNumber(null);
+    restoreTriggerFocus();
+  }, [restoreTriggerFocus]);
+
+  const closeViewer = useCallback(() => {
+    if (viewerOwnsHistoryRef.current) {
+      closingViewerRef.current = true;
+      viewerOwnsHistoryRef.current = false;
+      window.history.back();
+      return;
+    }
+
+    setViewerNumber(null);
+    window.history.replaceState(
+      null,
+      "",
+      window.location.pathname + window.location.search,
+    );
+    restoreTriggerFocus();
+  }, [restoreTriggerFocus]);
+
+  const openViewer = useCallback((number: number, source?: HTMLElement | null) => {
+    const lens = lenses[number - 1];
+    if (!lens) return;
+
+    returnFocusRef.current = source ?? (document.activeElement as HTMLElement | null);
+    setViewerNumber(number);
+
+    const nextHash = "#lens-" + number;
+    if (window.location.hash !== nextHash) {
+      const historyState = isRecord(window.history.state)
+        ? window.history.state
+        : {};
+      window.history.pushState(
+        { ...historyState, lensViewer: number },
+        "",
+        nextHash,
+      );
+      viewerOwnsHistoryRef.current = true;
+    } else {
+      viewerOwnsHistoryRef.current = false;
+    }
+
+    window.requestAnimationFrame(() => viewerCloseRef.current?.focus());
+  }, [lenses]);
+
+  const moveViewer = useCallback((direction: -1 | 1) => {
+    setViewerNumber((current) => {
+      if (current === null) return current;
+      const next = Math.min(TOTAL_LENSES, Math.max(1, current + direction));
+      if (next === current) return current;
+
+      const historyState = isRecord(window.history.state)
+        ? window.history.state
+        : {};
+      window.history.replaceState(
+        viewerOwnsHistoryRef.current
+          ? { ...historyState, lensViewer: next }
+          : historyState,
+        "",
+        "#lens-" + next,
+      );
+      return next;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (viewerNumber === null) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.requestAnimationFrame(() => viewerCloseRef.current?.focus());
+
+    const handleViewerKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.isComposing) return;
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeViewer();
+        return;
+      }
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        moveViewer(-1);
+        return;
+      }
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        moveViewer(1);
+        return;
+      }
+      if (event.key !== "Tab") return;
+
+      const focusable = viewerPanelRef.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (!focusable?.length) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    const handlePopState = () => {
+      if (closingViewerRef.current) closingViewerRef.current = false;
+      dismissViewer();
+    };
+
+    window.addEventListener("keydown", handleViewerKeyDown);
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleViewerKeyDown);
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [closeViewer, dismissViewer, moveViewer, viewerNumber]);
 
   const dismissEditor = useCallback(() => {
     setEditorNumber(null);
@@ -443,19 +589,39 @@ export function LensLibrary({
     };
   }, [dismissEditor, draft, editorNumber, originalLens]);
 
-  const openEditor = useCallback((number: number, source?: HTMLElement | null) => {
+  const openEditor = useCallback((
+    number: number,
+    source?: HTMLElement | null,
+    fromViewer = false,
+  ) => {
     const lens = lenses[number - 1];
     if (!lens) return;
 
-    returnFocusRef.current = source ?? (document.activeElement as HTMLElement | null);
+    if (!fromViewer) {
+      returnFocusRef.current = source ?? (document.activeElement as HTMLElement | null);
+    }
+    setViewerNumber(null);
     setEditorNumber(number);
     setDraft(makeDraft(lens));
 
-    const nextHash = `#lens-${number}`;
-    if (window.location.hash !== nextHash) {
-      const historyState = isRecord(window.history.state)
-        ? window.history.state
-        : {};
+    const nextHash = "#lens-" + number;
+    const historyState = isRecord(window.history.state)
+      ? window.history.state
+      : {};
+
+    if (fromViewer) {
+      const viewerOwnsHistory = viewerOwnsHistoryRef.current;
+      viewerOwnsHistoryRef.current = false;
+      window.history.replaceState(
+        {
+          ...historyState,
+          lensViewer: undefined,
+          lensEditor: viewerOwnsHistory ? number : undefined,
+        },
+        "",
+        nextHash,
+      );
+    } else if (window.location.hash !== nextHash) {
       window.history.pushState(
         { ...historyState, lensEditor: number },
         "",
@@ -472,9 +638,9 @@ export function LensLibrary({
     const number = match ? Number(match[1]) : 0;
     if (number < 1 || number > TOTAL_LENSES) return;
 
-    const timer = window.setTimeout(() => openEditor(number), 0);
+    const timer = window.setTimeout(() => openViewer(number), 0);
     return () => window.clearTimeout(timer);
-  }, [openEditor, ready]);
+  }, [openViewer, ready]);
 
   const stats = useMemo(() => {
     const filled = lenses.filter(isFilled).length;
@@ -866,8 +1032,8 @@ export function LensLibrary({
                   <button
                     type="button"
                     className="card-open"
-                    onClick={(event) => openEditor(lens.number, event.currentTarget)}
-                    aria-label={`${lens.number}번 렌즈${lens.title ? `, ${lens.title}` : ""} ${filled ? "열기" : "입력하기"}`}
+                    onClick={(event) => openViewer(lens.number, event.currentTarget)}
+                    aria-label={`${lens.number}번 렌즈${lens.title ? `, ${lens.title}` : ""} ${filled ? "보기" : "빈 카드 보기"}`}
                   >
                     <span className="card-status">{filled ? "작성됨" : "비어 있음"}</span>
                     <strong>{lens.title || "렌즈 제목을 입력하세요"}</strong>
@@ -881,7 +1047,7 @@ export function LensLibrary({
                       </span>
                     )}
                     <span className="card-action">
-                      {filled ? "내용 보기 · 편집" : "내용 추가"}<b aria-hidden="true">↗</b>
+                      {filled ? "내용 보기" : "빈 카드 보기"}<b aria-hidden="true">↗</b>
                     </span>
                   </button>
                 </article>
@@ -913,6 +1079,112 @@ export function LensLibrary({
           <button type="button" onClick={() => requestImport("replace")}>JSON으로 전체 교체</button>
         </div>
       </footer>
+
+      {viewerNumber !== null && viewedLens && (
+        <div
+          className="viewer-backdrop"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) closeViewer();
+          }}
+        >
+          <section
+            ref={viewerPanelRef}
+            className="viewer-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="viewer-heading"
+          >
+            <header className="viewer-header">
+              <div>
+                <p>LENS #{viewerNumber.toString().padStart(3, "0")}</p>
+                <h2 id="viewer-heading">
+                  {viewedLens.title || "렌즈 " + viewerNumber}
+                </h2>
+              </div>
+              <button
+                ref={viewerCloseRef}
+                type="button"
+                className="viewer-close"
+                onClick={closeViewer}
+                aria-label="보기 닫기"
+              >
+                ×
+              </button>
+            </header>
+
+            <div className="viewer-scroll">
+              {viewedLens.content.trim() ? (
+                <section className="viewer-section">
+                  <h3>내용</h3>
+                  <div className="markdown-body">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} skipHtml>
+                      {viewedLens.content}
+                    </ReactMarkdown>
+                  </div>
+                </section>
+              ) : (
+                <div className="viewer-empty">
+                  <strong>아직 작성된 내용이 없습니다.</strong>
+                  <p>편집 버튼을 눌러 이 렌즈에 내용을 추가할 수 있습니다.</p>
+                </div>
+              )}
+
+              {viewedLens.keywords.length > 0 && (
+                <section className="viewer-section viewer-keyword-section">
+                  <h3>검색 키워드</h3>
+                  <ul className="viewer-keywords">
+                    {viewedLens.keywords.map((keyword) => (
+                      <li key={keyword}>#{keyword}</li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+
+              {viewedLens.notes.trim() && (
+                <section className="viewer-section viewer-notes">
+                  <h3>메모</h3>
+                  <div className="markdown-body">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} skipHtml>
+                      {viewedLens.notes}
+                    </ReactMarkdown>
+                  </div>
+                </section>
+              )}
+            </div>
+
+            <footer className="viewer-footer">
+              <button
+                type="button"
+                className="viewer-nav-button"
+                onClick={() => moveViewer(-1)}
+                disabled={viewerNumber <= 1}
+              >
+                <span aria-hidden="true">←</span>
+                이전 렌즈
+              </button>
+              <button
+                type="button"
+                className="button button--accent viewer-edit-button"
+                onClick={() => openEditor(viewerNumber, null, true)}
+              >
+                편집
+              </button>
+              <button
+                type="button"
+                className="viewer-nav-button viewer-nav-button--next"
+                onClick={() => moveViewer(1)}
+                disabled={viewerNumber >= TOTAL_LENSES}
+              >
+                다음 렌즈
+                <span aria-hidden="true">→</span>
+              </button>
+            </footer>
+            <p className="viewer-shortcut" aria-hidden="true">
+              키보드 ← → 로 이동 · Esc로 닫기
+            </p>
+          </section>
+        </div>
+      )}
 
       {editorNumber !== null && draft && (
         <div
@@ -955,7 +1227,7 @@ export function LensLibrary({
                 </label>
 
                 <label className="field field--large">
-                  <span>내용</span>
+                  <span>내용 <small>마크다운 지원</small></span>
                   <textarea
                     value={draft.content}
                     onChange={(event) => setDraft({ ...draft, content: event.target.value })}
@@ -976,7 +1248,7 @@ export function LensLibrary({
                 </label>
 
                 <label className="field">
-                  <span>나만의 메모</span>
+                  <span>나만의 메모 <small>마크다운 지원</small></span>
                   <textarea
                     value={draft.notes}
                     onChange={(event) => setDraft({ ...draft, notes: event.target.value })}

@@ -53,6 +53,14 @@ test("uses repository defaults and provides browser-local editing", async () => 
   assert.match(source, /new Blob/);
   assert.match(source, /createObjectURL/);
   assert.match(source, /restoreDefaults/);
+  assert.match(source, /const openViewer/);
+  assert.match(source, /const moveViewer/);
+  assert.match(source, /ArrowLeft/);
+  assert.match(source, /ArrowRight/);
+  assert.match(source, /ReactMarkdown/);
+  assert.match(source, /remarkGfm/);
+  assert.match(source, /skipHtml/);
+  assert.match(source, /openEditor\(viewerNumber, null, true\)/);
   assert.doesNotMatch(source, /dangerouslySetInnerHTML/);
 });
 

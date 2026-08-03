@@ -36,7 +36,7 @@ jobs:
       - name: Build static site
         run: npm run build
 
-      - name: Verify public read-only build
+      - name: Verify public viewer and editor
         run: npm run test:unit
 
       - name: Upload Pages artifact
