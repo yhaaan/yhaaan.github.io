@@ -30,6 +30,11 @@ test("uses repository defaults and provides browser-local editing", async () => 
   assert.equal(payload.edition, 2);
   assert.equal(payload.language, "ko");
   assert.equal(payload.lenses.length, 113);
+  assert.ok(
+    payload.lenses
+      .filter((lens) => lens.content.trim())
+      .every((lens) => lens.content.startsWith("#### ")),
+  );
   assert.deepEqual(
     payload.lenses.map((lens) => lens.number),
     Array.from({ length: 113 }, (_, index) => index + 1),
