@@ -3,7 +3,7 @@ import "./globals.css";
 
 const SITE_TITLE = "렌즈 노트 — 게임 디자인 렌즈 컬렉션";
 const SITE_DESCRIPTION =
-  "운영자가 공개한 113개의 창작 게임 디자인 렌즈를 번호와 키워드로 탐색하는 읽기 전용 컬렉션입니다.";
+  "운영자가 공개한 100개의 게임 디자인 렌즈를 탐색하고, 브라우저에 나만의 렌즈도 추가할 수 있는 노트입니다.";
 
 const [repositoryOwner = "", repositoryName = ""] =
   process.env.GITHUB_REPOSITORY?.split("/") ?? [];

@@ -13,8 +13,9 @@ import {
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-const TOTAL_LENSES = 113;
-const STORAGE_KEY = "jesse-lenses:visitor-data:v2";
+const OFFICIAL_LENS_COUNT = 100;
+const MAX_LENSES = 999;
+const STORAGE_KEY = "jesse-lenses:visitor-data:v3";
 const BACKUP_DATE_KEY = "jesse-lenses:last-backup:v1";
 const IMPORT_BACKUP_KEY = "jesse-lenses:pre-import:v1";
 const MAX_IMPORT_BYTES = 10 * 1024 * 1024;
@@ -55,9 +56,6 @@ const createEmptyLens = (number: number): LensCard => ({
   favorite: false,
   updatedAt: null,
 });
-
-const createEmptyLibrary = () =>
-  Array.from({ length: TOTAL_LENSES }, (_, index) => createEmptyLens(index + 1));
 
 const normalize = (value: string) =>
   value
@@ -118,7 +116,7 @@ const cleanLens = (value: unknown): LensCard | null => {
   if (
     !Number.isInteger(number) ||
     (number as number) < 1 ||
-    (number as number) > TOTAL_LENSES ||
+    (number as number) > MAX_LENSES ||
     typeof value.title !== "string" ||
     typeof content !== "string" ||
     !Array.isArray(value.keywords) ||
@@ -144,14 +142,15 @@ const cleanLens = (value: unknown): LensCard | null => {
   };
 };
 
-const parseLensValues = (values: unknown[], requireComplete = false) => {
+const parseLensValues = (values: unknown[]) => {
   const cleaned = values.map(cleanLens);
   if (cleaned.some((lens) => lens === null)) return null;
 
-  const lenses = cleaned as LensCard[];
+  const lenses = (cleaned as LensCard[]).sort((left, right) => left.number - right.number);
   const numbers = new Set(lenses.map((lens) => lens.number));
   if (numbers.size !== lenses.length) return null;
-  if (requireComplete && (lenses.length !== TOTAL_LENSES || numbers.size !== TOTAL_LENSES)) {
+  if (lenses.length < OFFICIAL_LENS_COUNT || lenses.length > MAX_LENSES) return null;
+  if (lenses.some((lens, index) => lens.number !== index + 1)) {
     return null;
   }
   return lenses;
@@ -164,16 +163,11 @@ const parsePayload = (value: unknown) =>
   value.edition === 2 &&
   value.language === "ko" &&
   Array.isArray(value.lenses)
-    ? parseLensValues(value.lenses, true)
+    ? parseLensValues(value.lenses)
     : null;
 
-const buildLibrary = (values: LensCard[]) => {
-  const library = createEmptyLibrary();
-  values.forEach((lens) => {
-    library[lens.number - 1] = lens;
-  });
-  return library;
-};
+const buildLibrary = (values: LensCard[]) =>
+  [...values].sort((left, right) => left.number - right.number);
 
 const buildDefaultLibrary = (
   values: Array<Omit<LensCard, "favorite"> & { favorite?: boolean }>,
@@ -211,8 +205,17 @@ const makeDraft = (lens: LensCard): LensDraft => ({
   keywordText: lens.keywords.join(", "),
 });
 
-const draftHasChanges = (draft: LensDraft | null, original: LensCard | null) =>
-  Boolean(draft && original && JSON.stringify(draft) !== JSON.stringify(makeDraft(original)));
+const draftHasChanges = (draft: LensDraft | null, original: LensCard | null) => {
+  if (!draft) return false;
+  if (original) return JSON.stringify(draft) !== JSON.stringify(makeDraft(original));
+  return Boolean(
+    draft.title.trim() ||
+    draft.content.trim() ||
+    draft.keywordText.trim() ||
+    draft.notes.trim() ||
+    draft.favorite,
+  );
+};
 
 export function LensLibrary({
   lenses: defaultLenses,
@@ -239,6 +242,7 @@ export function LensLibrary({
   const titleRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const viewerPanelRef = useRef<HTMLElement>(null);
+  const viewerScrollRef = useRef<HTMLDivElement>(null);
   const viewerCloseRef = useRef<HTMLButtonElement>(null);
   const editorPanelRef = useRef<HTMLElement>(null);
   const importModeRef = useRef<ImportMode>("merge");
@@ -422,33 +426,38 @@ export function LensLibrary({
       nextHash,
     );
 
-    window.requestAnimationFrame(() => viewerCloseRef.current?.focus());
+    window.requestAnimationFrame(() => viewerCloseRef.current?.focus({ preventScroll: true }));
   }, [capturePagePosition, lenses]);
 
-  const moveViewer = useCallback((direction: -1 | 1) => {
-    setViewerNumber((current) => {
-      if (current === null) return current;
-      const next = Math.min(TOTAL_LENSES, Math.max(1, current + direction));
-      if (next === current) return current;
-
-      const historyState = isRecord(window.history.state)
-        ? window.history.state
-        : {};
-      window.history.replaceState(
-        { ...historyState, lensViewer: next },
-        "",
-        "#lens-" + next,
-      );
-      return next;
+  const showLensInViewer = useCallback((number: number) => {
+    if (number < 1 || number > lenses.length) return;
+    setViewerNumber(number);
+    const historyState = isRecord(window.history.state)
+      ? window.history.state
+      : {};
+    window.history.replaceState(
+      { ...historyState, lensViewer: number },
+      "",
+      "#lens-" + number,
+    );
+    window.requestAnimationFrame(() => {
+      viewerScrollRef.current?.scrollTo({ top: 0, behavior: "auto" });
+      viewerCloseRef.current?.focus({ preventScroll: true });
     });
-  }, []);
+  }, [lenses.length]);
+
+  const moveViewer = useCallback((direction: -1 | 1) => {
+    if (viewerNumber === null) return;
+    const next = Math.min(lenses.length, Math.max(1, viewerNumber + direction));
+    if (next !== viewerNumber) showLensInViewer(next);
+  }, [lenses.length, showLensInViewer, viewerNumber]);
 
   useEffect(() => {
     if (viewerNumber === null) return;
 
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    window.requestAnimationFrame(() => viewerCloseRef.current?.focus());
+    window.requestAnimationFrame(() => viewerCloseRef.current?.focus({ preventScroll: true }));
 
     const handleViewerKeyDown = (event: globalThis.KeyboardEvent) => {
       if (event.isComposing) return;
@@ -600,25 +609,52 @@ export function LensLibrary({
     window.setTimeout(() => titleRef.current?.focus(), 0);
   }, [capturePagePosition, lenses]);
 
+  const addCustomLens = useCallback((source: HTMLElement) => {
+    if (lenses.length >= MAX_LENSES) {
+      setNotice(`렌즈는 최대 ${MAX_LENSES}개까지 만들 수 있습니다.`);
+      return;
+    }
+
+    const number = lenses.length + 1;
+    returnFocusRef.current = source;
+    capturePagePosition();
+    setViewerNumber(null);
+    setEditorNumber(number);
+    setDraft(makeDraft(createEmptyLens(number)));
+
+    const historyState = isRecord(window.history.state)
+      ? window.history.state
+      : {};
+    window.history.replaceState(
+      { ...historyState, lensViewer: undefined, lensEditor: number },
+      "",
+      "#lens-" + number,
+    );
+    window.setTimeout(() => titleRef.current?.focus(), 0);
+  }, [capturePagePosition, lenses.length]);
+
   useEffect(() => {
     if (!ready || initialHashHandledRef.current) return;
     initialHashHandledRef.current = true;
     const match = window.location.hash.match(/^#lens-(\d{1,3})$/);
     const number = match ? Number(match[1]) : 0;
-    if (number < 1 || number > TOTAL_LENSES) return;
+    if (number < 1 || number > lenses.length) return;
 
     const timer = window.setTimeout(() => openViewer(number), 0);
     return () => window.clearTimeout(timer);
-  }, [openViewer, ready]);
+  }, [lenses.length, openViewer, ready]);
 
   const stats = useMemo(() => {
     const filled = lenses.filter(isFilled).length;
+    const officialFilled = lenses.slice(0, OFFICIAL_LENS_COUNT).filter(isFilled).length;
     const favorites = lenses.filter((lens) => lens.favorite).length;
     return {
       filled,
-      empty: TOTAL_LENSES - filled,
+      officialFilled,
+      custom: Math.max(0, lenses.length - OFFICIAL_LENS_COUNT),
+      empty: lenses.length - filled,
       favorites,
-      percent: Math.round((filled / TOTAL_LENSES) * 100),
+      percent: Math.round((officialFilled / OFFICIAL_LENS_COUNT) * 100),
     };
   }, [lenses]);
 
@@ -649,6 +685,32 @@ export function LensLibrary({
     });
   }, [filter, lenses, query]);
 
+  const viewerMarkdownComponents = useMemo<Components>(() => ({
+    a: ({ href, children, title }) => {
+      const match = href?.match(/^#lens-(\d{1,3})$/);
+      const number = match ? Number(match[1]) : 0;
+      if (number >= 1 && number <= lenses.length) {
+        return (
+          <a
+            href={href}
+            title={title}
+            onClick={(event) => {
+              event.preventDefault();
+              showLensInViewer(number);
+            }}
+          >
+            {children}
+          </a>
+        );
+      }
+      return (
+        <a href={href} title={title} target="_blank" rel="noreferrer">
+          {children}
+        </a>
+      );
+    },
+  }), [lenses.length, showLensInViewer]);
+
   const saveDraft = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!draft || editorNumber === null) return;
@@ -673,9 +735,14 @@ export function LensLibrary({
       favorite: draft.favorite,
       updatedAt: new Date().toISOString(),
     };
-    const next = lenses.map((lens) =>
-      lens.number === editorNumber ? updatedLens : lens,
-    );
+    const isNewLens = editorNumber === lenses.length + 1;
+    if (editorNumber > lenses.length + 1) {
+      setNotice("새 렌즈 번호가 올바르지 않습니다. 창을 닫고 다시 추가해 주세요.");
+      return;
+    }
+    const next = isNewLens
+      ? [...lenses, updatedLens]
+      : lenses.map((lens) => lens.number === editorNumber ? updatedLens : lens);
 
     const persisted = persistLibrary(next, false, [editorNumber]);
     if (!persisted) return;
@@ -723,7 +790,7 @@ export function LensLibrary({
   const restoreDefaults = () => {
     if (
       !window.confirm(
-        "이 브라우저에서 수정한 내용을 지우고 운영자가 공개한 기본값으로 복원할까요?",
+        "이 브라우저에서 수정·추가한 내용을 모두 지우고 공식 렌즈 100개로 복원할까요?",
       )
     ) return;
 
@@ -789,7 +856,10 @@ export function LensLibrary({
       const next = mode === "replace"
         ? buildLibrary(imported)
         : (() => {
-            const merged = [...lenses];
+            const merged = Array.from(
+              { length: Math.max(lenses.length, imported.length) },
+              (_, index) => lenses[index] ?? createEmptyLens(index + 1),
+            );
             importedWithData.forEach((lens) => {
               merged[lens.number - 1] = lens;
             });
@@ -802,7 +872,7 @@ export function LensLibrary({
       setLenses(persisted);
       setNotice(
         mode === "replace"
-          ? "113개 렌즈 슬롯을 교체했습니다. 기존 데이터도 백업했습니다."
+          ? `${imported.length}개 렌즈로 교체했습니다. 기존 데이터도 백업했습니다.`
           : `${affected}개 항목을 병합했습니다. 기존 데이터도 백업했습니다.`,
       );
     } catch {
@@ -815,7 +885,7 @@ export function LensLibrary({
   };
 
   const filterItems: { value: Filter; label: string; count: number }[] = [
-    { value: "all", label: "전체", count: TOTAL_LENSES },
+    { value: "all", label: "전체", count: lenses.length },
     { value: "filled", label: "작성됨", count: stats.filled },
     { value: "empty", label: "비어 있음", count: stats.empty },
     { value: "favorites", label: "즐겨찾기", count: stats.favorites },
@@ -872,14 +942,14 @@ export function LensLibrary({
           <p className="eyebrow">THE ART OF GAME DESIGN · SECOND EDITION INDEX</p>
           <h1>필요한 관점을,<br /><em>필요한 순간에.</em></h1>
           <p className="hero-description">
-            113개의 렌즈를 나만의 언어로 기록하고, 번호와 키워드로 바로 찾아보세요.
-            책의 내용은 포함되어 있지 않습니다.
+            100개의 공식 렌즈를 번호와 키워드로 바로 찾아보세요.
+            필요하면 101번부터 나만의 렌즈도 계속 추가할 수 있습니다.
           </p>
         </div>
 
-        <div className="hero-progress" aria-label={`전체 113개 중 ${stats.filled}개 작성됨`}>
+        <div className="hero-progress" aria-label={`공식 렌즈 100개 중 ${stats.officialFilled}개 작성됨`}>
           <div className="progress-orbit"><span>{stats.percent}<small>%</small></span></div>
-          <div><strong>{stats.filled} / {TOTAL_LENSES}</strong><p>렌즈 작성 완료</p></div>
+          <div><strong>{stats.officialFilled} / {OFFICIAL_LENS_COUNT}</strong><p>공식 렌즈 정리 완료</p></div>
         </div>
       </section>
 
@@ -969,9 +1039,20 @@ export function LensLibrary({
             <p className="section-kicker">LENS CATALOGUE</p>
             <h2>{query ? `“${query}” 검색 결과` : "렌즈 목록"}</h2>
           </div>
-          <p aria-live="polite" aria-atomic="true">
-            <strong>{filteredLenses.length}</strong>개 표시 중
-          </p>
+          <div className="results-actions">
+            <p aria-live="polite" aria-atomic="true">
+              <strong>{filteredLenses.length}</strong>개 표시 중
+              {stats.custom > 0 && <span> · 추가 렌즈 {stats.custom}개</span>}
+            </p>
+            <button
+              type="button"
+              className="button button--accent add-lens-button"
+              onClick={(event) => addCustomLens(event.currentTarget)}
+              disabled={lenses.length >= MAX_LENSES}
+            >
+              + 새 렌즈 추가
+            </button>
+          </div>
         </div>
 
         {filteredLenses.length ? (
@@ -1089,11 +1170,15 @@ export function LensLibrary({
               </button>
             </header>
 
-            <div className="viewer-scroll">
+            <div ref={viewerScrollRef} className="viewer-scroll">
               {viewedLens.content.trim() ? (
                 <section className="viewer-section">
                   <div className="markdown-body">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]} skipHtml>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      skipHtml
+                      components={viewerMarkdownComponents}
+                    >
                       {viewedLens.content}
                     </ReactMarkdown>
                   </div>
@@ -1120,7 +1205,11 @@ export function LensLibrary({
                 <section className="viewer-section viewer-notes">
                   <h3>메모</h3>
                   <div className="markdown-body">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]} skipHtml>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      skipHtml
+                      components={viewerMarkdownComponents}
+                    >
                       {viewedLens.notes}
                     </ReactMarkdown>
                   </div>
@@ -1149,7 +1238,7 @@ export function LensLibrary({
                 type="button"
                 className="viewer-nav-button viewer-nav-button--next"
                 onClick={() => moveViewer(1)}
-                disabled={viewerNumber >= TOTAL_LENSES}
+                disabled={viewerNumber >= lenses.length}
               >
                 다음 렌즈
                 <span aria-hidden="true">→</span>

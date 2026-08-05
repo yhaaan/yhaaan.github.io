@@ -94,12 +94,12 @@ test("rejects invalid numbers and empty save requests", async () => {
   const payload = await loadPayload();
 
   assert.throws(
-    () => updateLensPayload(payload, { mode: "save", number: 114, title: "x" }),
-    /1부터 113/,
+    () => updateLensPayload(payload, { mode: "save", number: 101, title: "x" }),
+    /1부터 100/,
   );
   assert.throws(
     () => updateLensPayload(payload, { mode: "save", number: "1e2", title: "x" }),
-    /1부터 113/,
+    /1부터 100/,
   );
   assert.throws(
     () => updateLensPayload(payload, { mode: "save", number: 1 }),

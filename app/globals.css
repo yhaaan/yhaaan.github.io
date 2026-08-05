@@ -412,8 +412,19 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   letter-spacing: -0.04em;
   overflow-wrap: anywhere;
 }
-.results-heading > p { margin: 0 0 4px; color: var(--muted); font-size: 12px; }
-.results-heading > p strong { color: var(--ink); font-family: Georgia, serif; font-size: 18px; }
+.results-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.results-actions > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.results-actions > p strong { color: var(--ink); font-family: Georgia, serif; font-size: 18px; }
+.add-lens-button { min-height: 42px; padding-inline: 18px; white-space: nowrap; }
 
 .lens-grid {
   display: grid;
@@ -1009,8 +1020,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
     justify-content: center;
   }
   .first-run-actions { align-items: flex-start; flex-direction: column; gap: 10px; }
-  .results-heading { margin-top: 44px; }
-  .results-heading > p {
+  .results-heading { margin-top: 44px; align-items: center; }
+  .results-actions { flex: 0 0 auto; }
+  .results-actions > p {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -1021,6 +1033,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
     white-space: nowrap;
     border: 0;
   }
+  .add-lens-button { min-height: 40px; padding-inline: 13px; }
   .lens-grid { grid-template-columns: 1fr; }
   .lens-card { min-height: 278px; }
   .footer { align-items: flex-start; flex-direction: column; gap: 8px; }

@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       number:
-        description: "렌즈 번호 (1~113)"
+        description: "공식 렌즈 번호 (1~100)"
         required: true
         type: string
       mode:

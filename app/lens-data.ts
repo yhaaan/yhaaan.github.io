@@ -1,4 +1,4 @@
-export const TOTAL_LENSES = 113;
+export const TOTAL_LENSES = 100;
 
 export type LensCard = {
   number: number;

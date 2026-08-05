@@ -2,7 +2,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const TOTAL_LENSES = 113;
+const TOTAL_LENSES = 100;
 const APP_ID = "art-of-game-design-lens-notes";
 const VALID_MODES = new Set(["save", "clear"]);
 
@@ -86,7 +86,7 @@ const validatePayload = (payload) => {
       typeof lens.favorite !== "boolean" ||
       !(lens.updatedAt === null || typeof lens.updatedAt === "string")
     ) {
-      throw new Error("렌즈 번호는 1~113 범위에서 중복 없이 존재해야 합니다.");
+      throw new Error("렌즈 번호는 1~100 범위에서 중복 없이 존재해야 합니다.");
     }
     numbers.add(lens.number);
   }
@@ -108,8 +108,8 @@ export function updateLensPayload(payload, input, now = new Date().toISOString()
   if (!VALID_MODES.has(mode)) {
     throw new Error("작업 방식은 save 또는 clear여야 합니다.");
   }
-  if (!/^(?:[1-9]|[1-9][0-9]|10[0-9]|11[0-3])$/.test(numberText)) {
-    throw new Error("렌즈 번호는 1부터 113 사이의 정수여야 합니다.");
+  if (!/^(?:[1-9]|[1-9][0-9]|100)$/.test(numberText)) {
+    throw new Error("렌즈 번호는 1부터 100 사이의 정수여야 합니다.");
   }
 
   const nextPayload = structuredClone(payload);
