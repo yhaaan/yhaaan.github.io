@@ -1,0 +1,127 @@
+{
+  "profile": {
+    "name": "김요한",
+    "handle": "yhaaan",
+    "intro": "즐거움을 설계하고, 게임으로 완성하는 게임 개발자입니다.",
+    "github": "https://github.com/yhaaan"
+  },
+  "projects": [
+    {
+      "slug": "stellar-witch", "title": "Stellar Witch", "category": "Game · Steam · Unity",
+      "summary": "인벤토리 관리와 회피 액션을 결합한 로그라이크 게임입니다.",
+      "url": "https://store.steampowered.com/app/3822990/Stellar_Witch/",
+      "sections": [{"title": "개발 인원", "text": "5인 개발"}, {"title": "출시 기록", "text": "2025년 7월 Steam 출시. 2026년 11월 기준 리뷰 127개, ‘매우 긍정적’."}]
+    },
+    {
+      "slug": "floor", "title": "FLOOR", "category": "Game · Unity",
+      "summary": "큐브를 쌓아 올리는 게임입니다.", "url": "https://play.unity.com/ko/games/517b467b-edfc-47b5-bf8e-95cb2a7b62a6/floor",
+      "sections": [{"title": "팀 구성", "text": "3인 개발 · 개발 1명, 기획 1명, 아트 1명"}]
+    },
+    {
+      "slug": "bbangtazia", "title": "빵타지아", "category": "Game · Unity",
+      "summary": "빵을 찾아 모험을 떠나는 2D 어드벤처 게임입니다.", "url": "https://play.unity.com/ko/user/e8935228-3e56-486f-b673-03eb7fa772a9",
+      "sections": [{"title": "개발 인원", "text": "3인 개발"}]
+    },
+    {
+      "slug": "delivery", "title": "따스로의 딜리버리", "category": "Game · Unity",
+      "summary": "물리 엔진을 활용한 캐주얼 2D 게임입니다.", "url": "https://play.unity.com/ko/games/00e2249e-4dbf-493e-a4a2-7a969c76fabe/w06",
+      "sections": [{"title": "개발 인원", "text": "4인 개발"}]
+    },
+    {
+      "slug": "undead-samurai", "title": "불사의 SAMURAI", "category": "Game · Unity",
+      "summary": "보스를 격파하는 2D 소울라이크 게임입니다.", "url": "https://play.unity.com/ko/games/b818e27c-830c-45cd-83a9-9446f482a2b0/w05-undead-samurai",
+      "sections": [{"title": "개발 인원", "text": "5인 개발"}]
+    },
+    {
+      "slug": "surveillance", "title": "Surveillance", "category": "Game · Unity",
+      "summary": "2D 공포 관찰 게임입니다.", "url": "https://play.unity.com/ko/games/4e5b793b-ef8e-4fa5-ac0d-8866b4ee8cdf/w04-surveillance",
+      "sections": [{"title": "팀 구성", "text": "4인 개발 · 아트 1명, 기획 1명, 개발 2명"}]
+    },
+    {
+      "slug": "only-fishing", "title": "Only Fishing", "category": "Game · Unity",
+      "summary": "낚시 도감을 채워 가는 힐링 게임입니다.", "url": "https://play.unity.com/ko/games/d1051e6e-29a9-4fad-ae7b-49126165e07d/w02",
+      "sections": [{"title": "개발 인원", "text": "1인 개발"}]
+    },
+    {
+      "slug": "snow-love", "title": "눈사랑", "category": "Game · Unity",
+      "summary": "픽셀 아트로 그린 2D 스토리 선택지 게임입니다.", "source": "https://github.com/yhaaan/snowlove",
+      "sections": [{"title": "팀 구성", "text": "3인 개발 · 프로그래밍 1명, 아트 1명, 기획 1명"}, {"title": "공모전", "text": "2025년 2월 만들래 10분 게임 콘테스트 10위"}]
+    },
+    {
+      "slug": "bystander", "title": "방관자 (Bystander)", "category": "Game · Unity",
+      "summary": "선택지를 따라 탐험하는 2D 게임입니다.", "source": "https://github.com/yhaaan/bystander",
+      "sections": [{"title": "팀 구성", "text": "3인 개발 · 프로그래밍 1명, 아트 1명, 기획 1명"}, {"title": "공모전", "text": "2025년 2월 만들래 10분 게임 콘테스트 7위"}]
+    },
+    {
+      "slug": "dora", "title": "도라", "category": "Game · Unity",
+      "summary": "수집한 대상을 도감에 등록하는 방치형 게임입니다.", "source": "https://github.com/yhaaan/Dora",
+      "sections": [{"title": "개발 인원과 역할", "text": "1인 개발 · 프로그래밍, 일부 아트 작업, 기획"}]
+    },
+    {
+      "slug": "hamstory", "title": "HamStory", "category": "Game · Unity",
+      "summary": "세로로 스크롤하는 플랫포머 점프 게임입니다.", "url": "https://store.onstove.com/ko/games/3590",
+      "sections": [{"title": "팀 구성", "text": "2인 개발 · 프로그래밍 1명, 아트 1명"}, {"title": "전시와 출시", "text": "2024년 5월 PlayX4 전시\n2026년 3월 Steam 출시\n2026년 5월 PlayX4 IGIB 부스 선정\n2026년 6월 콘솔 버전 출시"}]
+    },
+    {
+      "slug": "color-switch", "title": "Color-Switch", "category": "Game · Unity",
+      "summary": "색을 조합해 퍼즐을 풀어 나가는 게임입니다.",
+      "sections": [{"title": "개발 인원", "text": "1인 개발"}]
+    },
+    {
+      "slug": "project-5x5", "title": "Project 5x5", "category": "Game · Unity",
+      "summary": "캐주얼 액션 게임 프로젝트입니다.",
+      "sections": [{"title": "팀 구성", "text": "3인 개발 · 프로그래밍 3명"}]
+    },
+    {
+      "slug": "lucky-day", "title": "오늘의 운세", "category": "Flask · Python",
+      "summary": "생년월일로 오늘의 운세를 확인하는 웹페이지입니다. 현재 서비스는 비활성화되어 있습니다.", "source": "https://github.com/yhaaan/LuckyDay",
+      "sections": [{"title": "개발 인원", "text": "1인 개발"}]
+    },
+    {
+      "slug": "lens-notes",
+      "title": "렌즈 노트",
+      "category": "웹 프로젝트",
+      "summary": "렌즈에 관한 개인 노트를 기록하고 이어서 볼 수 있는 웹 프로젝트입니다.",
+      "url": "https://yhaaan.github.io/lens-notes/",
+      "source": "https://github.com/yhaaan/lens-notes",
+      "sections": [
+        {
+          "title": "프로젝트 소개",
+          "text": "렌즈 노트는 포트폴리오와 분리된 주소에서 운영합니다. 같은 브라우저로 방문하면 기존에 작성한 개인 노트를 이어서 볼 수 있습니다."
+        }
+      ]
+    }
+  ],
+  "skills": ["Aseprite", "C#", "C/C++", "Git", "Unity"],
+  "otherSkills": ["CSS", "HTML", "Java", "Python"],
+  "experience": [
+    {"period":"2026.11", "title":"Unity AI Game Jam", "text":"게임잼 · Unity CLI Special Prize", "url":"https://github.com/yhaaan/Unity_AI_Game_Jam_07"},
+    {"period":"2026.11", "title":"2026 조달청 AI 게임·콘텐츠 공모전", "text":"공모전", "url":"https://github.com/k56754665/nara-price-quiz"},
+    {"period":"2026.10", "title":"스마일게이트 희망스튜디오 · 우리동네 플레이어", "text":"대외활동 · 성남시 청소년 AI 게임 창작 프로젝트"},
+    {"period":"2026.09", "title":"NHN 게임 × AI 해커톤", "text":"게임잼 · 챌린저 상", "url":"https://github.com/k56754665/Ratsgo-5000"},
+    {"period":"2026.08", "title":"PlayStation 협업 프로젝트 〈PLAY it YOUR WAY〉", "text":"팀 활동"},
+    {"period":"2026.07", "title":"넥슨 2026 메커톤", "text":"게임잼", "url":"https://maplestoryworlds.nexon.com/ko/play/932ca835460d49b58e84c1c4eb1d2b7e/badge"},
+    {"period":"2026.06", "title":"세종대학교 제26회 창의설계경진대회", "text":"팀 활동 · 최우수상", "url":"https://github.com/yhaaan/team3-cloud-capstone"},
+    {"period":"2026.06", "title":"HamStory 콘솔 버전 출시", "text":"팀 활동 · Nintendo, Xbox, PlayStation, Microsoft Store"},
+    {"period":"2026.05", "title":"햄스터의 스티커북 Steam 출시", "text":"팀 활동", "url":"https://store.steampowered.com/app/4281140/Hamsters_Sticker_Book/?l=koreana"},
+    {"period":"2026.05", "title":"PlayX4 전시 · HamStory IGIB 부스 선정", "text":"팀 활동"},
+    {"period":"2026.04", "title":"햄스터의 스티커북 텀블벅 펀딩", "text":"팀 활동 · 286% 펀딩 성공, 최고 순위 6위", "url":"https://tumblbug.com/hamstersstickerbook/story"},
+    {"period":"2026.03", "title":"HamStory Steam 출시", "text":"팀 활동 · 2026년 11월 기준 판매량 250장", "url":"https://store.steampowered.com/app/4008550/Hamstory/"},
+    {"period":"2025.09", "title":"2025 순천 AI 게임잼", "text":"게임잼 · 특별상", "url":"https://www.youtube.com/watch?v=nziwvdoJuYs"},
+    {"period":"2025.08", "title":"크래프톤 정글 게임랩 3기 수료", "text":"부트캠프"},
+    {"period":"2025.08", "title":"메이플 대학생 커리어 캠프 · 멘토링 3기", "text":"대외활동"},
+    {"period":"2025.08", "title":"제2회 스파르타 게임잼", "text":"게임잼", "url":"https://github.com/yhaaan/GameJam_VeriPeri"},
+    {"period":"2025.07", "title":"Stellar Witch Steam 출시", "text":"팀 활동 · 2026년 11월 기준 리뷰 127개(매우 긍정적)", "url":"https://store.steampowered.com/app/3822990/Stellar_Witch/"},
+    {"period":"2025.06", "title":"커피한잔 게임 콘테스트", "text":"공모전", "url":"https://www.youtube.com/watch?v=K7kkkGWsLPA"},
+    {"period":"2025.02", "title":"만들래 10분 게임 콘테스트 · 눈사랑", "text":"공모전 · 10위", "url":"https://github.com/yhaaan/snowlove"},
+    {"period":"2025.02", "title":"만들래 10분 게임 콘테스트 · Bystander", "text":"공모전 · 7위", "url":"https://github.com/yhaaan/bystander"},
+    {"period":"2025.01", "title":"2025 젬파이 × in Seoul 게임잼", "text":"게임잼"},
+    {"period":"2024.05", "title":"PlayX4 전시 · HamStory", "text":"전시"},
+    {"period":"2023.09", "title":"세종대학교 게임 제작 동아리 판도라큐브", "text":"동아리 · 정회원"},
+    {"period":"2020~", "title":"세종대학교 컴퓨터공학과", "text":"학력 · 기존 프로필 작성 당시 재학"},
+    {"period":"2020", "title":"통진고등학교 인문계 졸업", "text":"학력"},
+    {"title":"제62회 독서경시대회", "text":"세종대학교 교내대회 · 4등"}
+  ],
+  "photos": [],
+  "archive": []
+}

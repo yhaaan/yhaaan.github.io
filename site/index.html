@@ -3,27 +3,18 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="yhaaan의 포트폴리오. 포트폴리오를 준비하고 있습니다.">
-    <title>yhaaan | 포트폴리오</title>
-    <style>
-      :root { color-scheme: dark; font-family: system-ui, -apple-system, sans-serif; }
-      * { box-sizing: border-box; }
-      body { margin: 0; background: #101318; color: #f1f4f8; }
-      main { max-width: 760px; margin: 0 auto; padding: 18vh 24px 64px; }
-      .name { color: #8fa9cc; font-weight: 600; letter-spacing: .08em; }
-      h1 { margin: 24px 0; font-size: clamp(2rem, 6vw, 3.5rem); line-height: 1.25; }
-      p { color: #b8c3d2; font-size: 1.125rem; line-height: 1.8; }
-      a { display: inline-block; margin-top: 24px; padding: 14px 20px; border: 1px solid #637e9f; border-radius: 10px; color: #eef5ff; font-size: 1rem; text-decoration: none; }
-      a:hover { background: #223249; }
-      a:focus-visible { outline: 3px solid #9ac4ff; outline-offset: 5px; }
-    </style>
+    <meta name="description" content="$description">
+    <meta name="theme-color" content="#f8f7f2">
+    <title>$title</title>
+    <link rel="stylesheet" href="${root}portfolio.css">
   </head>
   <body>
-    <main>
-      <div class="name">yhaaan</div>
-      <h1>포트폴리오를<br>준비하고 있습니다.</h1>
-      <p>기존 렌즈 노트는 새로운 주소로 옮겼습니다.<br>아래 링크에서 계속 이용할 수 있습니다.</p>
-      <a href="/lens-notes/">렌즈 노트 열기</a>
-    </main>
+    <a class="skip" href="#main">본문 바로가기</a>
+    <header class="masthead wrap">
+      <a class="brand" href="${root}index.html"><span class="brand-mark" aria-hidden="true">✳</span> $brand</a>
+      <nav aria-label="주요 메뉴">$nav</nav>
+    </header>
+    <main id="main" class="wrap">$content</main>
+    <footer class="wrap"><span>© $name</span><a href="#main">맨 위로 ↑</a></footer>
   </body>
 </html>
