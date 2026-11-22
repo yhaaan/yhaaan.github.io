@@ -1,0 +1,14 @@
+name = "yohan-portfolio-editor"
+main = "editor-worker.mjs"
+compatibility_date = "2025-04-01"
+workers_dev = true
+
+[vars]
+GITHUB_CLIENT_ID = "REPLACE_WITH_PUBLIC_GITHUB_APP_CLIENT_ID"
+OWNER_ID = "REPLACE_WITH_NUMERIC_GITHUB_USER_ID"
+
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# Configure GITHUB_CLIENT_SECRET using Wrangler's secret prompt, not here.

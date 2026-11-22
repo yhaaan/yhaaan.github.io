@@ -39,6 +39,8 @@ next-env.d.ts
 *.tsbuildinfo
 /dist/
 /.wrangler/
+/wrangler.editor.toml
+/.dev.vars*
 /outputs/
 /work/
 /__pycache__/

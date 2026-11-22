@@ -1,0 +1,16 @@
+.owner-bar,.owner-controls{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}.owner-bar,.owner-dialog{color-scheme:light;font:400 .95rem/1.5 system-ui,'Malgun Gothic',sans-serif}.owner-bar{background:#30372d;color:white;padding:.75rem max(1rem,calc((100vw - 70rem)/2))}.owner-bar select,.owner-btn{cursor:pointer;border:1px solid #85957c;border-radius:.4rem;background:#fff;color:#283724;padding:.4rem .8rem;font:inherit}.owner-btn:focus-visible,.owner-dialog :focus-visible{outline:3px solid #73991f;outline-offset:2px}.owner-editing :is([data-edit-group],[data-manage]){cursor:text}.owner-editing [data-manage]{cursor:pointer}.owner-editing :is([data-edit-group],[data-manage]):hover{outline:1px dashed #839e52;outline-offset:2px}.owner-dialog{width:min(40rem,94vw);max-height:88vh;overflow:auto;border:1px solid #819477;border-radius:.6rem;padding:1.4rem;color:#202724;background:#f8f8f2}.owner-dialog::backdrop{background:#132018c9}.owner-dialog label,.owner-block{display:grid;gap:.3rem;margin:.7rem 0}.owner-dialog input,.owner-dialog textarea,.owner-dialog select{font:inherit;width:100%;padding:.45rem;border:1px solid #8c9d90;border-radius:.25rem;color:#202724;background:white}.owner-dialog input[type=file]{font-size:.85rem}.owner-dialog textarea{min-height:5rem}.owner-dialog img{max-width:9rem;max-height:6rem;object-fit:contain}.owner-dialog fieldset{border:1px solid #b7c2b8;margin:.8rem 0}.owner-dialog button:disabled{opacity:.5}.owner-status{white-space:pre-wrap}.owner-dialog .owner-controls{margin-top:.8rem}.owner-row{display:flex;justify-content:space-between;align-items:center;gap:.8rem;border-bottom:1px solid #ddd;padding:.5rem 0}.owner-row span{flex:1}.owner-dialog h2{font-size:1.5rem}.owner-dialog h3{font-size:1.15rem}
+.drag-handle { display:none; position:absolute; inset:.35rem .35rem auto auto; z-index:1; width:2.75rem; height:2.75rem; align-items:center; justify-content:center; border:1px solid #829173; border-radius:.5rem; font:700 1.25rem/1 system-ui; background:#fcfff5; color:#263421; cursor:grab; touch-action:none; user-select:none }
+.owner-editing .drag-handle { display:flex }
+.owner-editing .work-cover { padding-inline-end:3.4rem }
+.owner-editing .work.dragging { position:fixed; z-index:10; pointer-events:none; opacity:.94; box-shadow:0 .8rem 2rem #18251338; list-style:none }
+.dragging .drag-handle { cursor:grabbing }
+.drop-slot { min-width:0; border:2px dashed var(--focus); background:#b5ed521a }
+.owner-editing .works { min-height:3rem }
+.owner-editing .works:has(>.dragging:only-child)::after { content:'여기로 끌어 놓기'; grid-column:1/-1; text-align:center; padding:1rem; border:1px dashed var(--focus); color:var(--muted) }
+/* Keep titles clear of the handle while editing. */
+.owner-editing :is(.shelf-notable,.shelf-others) .work h3 { padding-inline-end:3rem }
+.owner-editing .shelf-others .drag-handle { inset:50% .25rem auto auto; transform:translateY(-50%); width:2.25rem; height:2.25rem; font-size:1rem }
+.owner-editing .shelf-others .tile { padding-inline-end:3.2rem }
+.owner-editing .shelf-others .drag-handle { inset:50% .4rem auto auto }
+.owner-editing .shelf-others .work-cover { padding-inline-end:0 }
+.owner-editing .shelf-others .work h3 { padding-inline-end:0 }

@@ -4,17 +4,18 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="$description">
-    <meta name="theme-color" content="#f8f7f2">
+    <meta name="theme-color" content="#232622">
+    <meta name="referrer" content="same-origin">
     <title>$title</title>
     <link rel="stylesheet" href="${root}portfolio.css">
+    <script defer src="${root}portfolio.js"></script>
+    $owner_loader
   </head>
-  <body>
-    <a class="skip" href="#main">본문 바로가기</a>
-    <header class="masthead wrap">
-      <a class="brand" href="${root}index.html"><span class="brand-mark" aria-hidden="true">✳</span> $brand</a>
-      <nav aria-label="주요 메뉴">$nav</nav>
-    </header>
-    <main id="main" class="wrap">$content</main>
-    <footer class="wrap"><span>© $name</span><a href="#main">맨 위로 ↑</a></footer>
+  <body class="$theme">
+    <div class="progress" aria-hidden="true"></div>
+    <a class="skip" href="#main">$skip</a>
+    <header class="wrap mast"><a class="brand" href="$home">$brand</a><nav aria-label="주요 메뉴">$nav</nav></header>
+    <main id="main" class="wrap" tabindex="-1">$content</main>
+    <footer class="wrap"><div>$name · $footer</div><a href="#main">$top</a></footer>
   </body>
 </html>
