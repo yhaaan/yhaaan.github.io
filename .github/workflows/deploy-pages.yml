@@ -41,6 +41,9 @@ jobs:
         uses: actions/upload-pages-artifact@v5
         with:
           path: ./dist/portfolio
+      - name: Wait for the artifact to be listed
+        # Large uploads (videos) take a moment to appear; deploy-pages looks them up immediately.
+        run: sleep 30
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
