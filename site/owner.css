@@ -14,3 +14,9 @@
 .owner-editing .shelf-others .drag-handle { inset:50% .4rem auto auto }
 .owner-editing .shelf-others .work-cover { padding-inline-end:0 }
 .owner-editing .shelf-others .work h3 { padding-inline-end:0 }
+.owner-drop { display:grid; place-items:center; gap:.4rem; margin:.6rem 0; padding:1.1rem; border:2px dashed #9fb07f; border-radius:.5rem; color:#4e5f3b; text-align:center; cursor:pointer; background:#fbfcf6 }
+.owner-drop.is-over { border-color:#73991f; background:#eef6dc }
+.owner-drop input { font-size:.8rem; max-width:16rem }
+.owner-editing .is-drop-over { outline:3px dashed var(--lime,#b5ed52); outline-offset:4px }
+.owner-editing .media-thumb[draggable=true] { cursor:grab }
+.owner-editing .media-thumb.is-dragging { opacity:.4; outline:2px dashed var(--lime,#b5ed52) }

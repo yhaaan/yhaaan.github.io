@@ -2,7 +2,7 @@
   "profile": {
     "name": "김요한",
     "handle": "요한",
-    "intro": "AI와 함께 기획부터 구현까지, 끝까지 완성하는 게임 메이커 김요한",
+    "intro": "AI와 함께 기획부터 구현까지, 끝까지 완성하는 게임 메이커",
     "role": "AI Game Maker",
     "github": "https://github.com/yhaaan",
     "image": "/media/profile.jpg",
@@ -10,45 +10,6 @@
     "baekjoonTier": "Gold IV"
   },
   "projects": [
-    {
-      "slug": "stellar-witch",
-      "title": "Stellar Witch",
-      "category": "인벤토리 관리 로그라이크 · Unity · Steam 출시",
-      "summary": "인벤토리 관리와 회피 액션을 결합한 로그라이크 게임입니다.",
-      "url": "https://store.steampowered.com/app/3822990/Stellar_Witch/",
-      "sections": [
-        {
-          "title": "개발 인원",
-          "text": "5인 개발"
-        },
-        {
-          "title": "출시 기록",
-          "text": "2025년 7월 Steam 출시. 2026년 11월 기준 리뷰 127개, ‘매우 긍정적’."
-        }
-      ],
-      "feature": "1",
-      "outcome": "Steam 리뷰 127개 · 매우 긍정적",
-      "image": "/media/pic-bea63196-771f-469c-ad2d-21334f98ce0e.png"
-    },
-    {
-      "slug": "hamstory",
-      "title": "HamStory",
-      "category": "세로 스크롤 플랫포머 · Unity · 콘솔 출시",
-      "summary": "세로로 스크롤하는 플랫포머 점프 게임입니다.",
-      "url": "https://store.onstove.com/ko/games/3590",
-      "sections": [
-        {
-          "title": "팀 구성",
-          "text": "2인 개발 · 프로그래밍 1명, 아트 1명"
-        },
-        {
-          "title": "전시와 출시",
-          "text": "2024년 5월 PlayX4 전시\n2026년 3월 Steam 출시\n2026년 5월 PlayX4 IGIB 부스 선정\n2026년 6월 콘솔 버전 출시"
-        }
-      ],
-      "feature": "1",
-      "outcome": "Steam · 콘솔 출시"
-    },
     {
       "slug": "collazoo",
       "title": "CollaZoo",
@@ -74,22 +35,52 @@
           "text": "Unity AI Game Jam Unity CLI Special Prize\n7개 스테이지 · 파츠 216개 조합 · Windows 빌드\nPlayerPartBuildTests 10건 통과, 개발 세션 로그와 빌드 기록을 심사 자료로 제출"
         }
       ],
-      "feature": "1"
-    },
-    {
-      "sections": [],
-      "title": "천만해요, 순천만",
-      "slug": "suncheonman",
-      "feature": "1"
+      "feature": "1",
+      "aiChallenge": "1",
+      "challenge": "Unity AI Game Jam",
+      "contributionAreas": [
+        {
+          "title": "개발",
+          "value": "60"
+        },
+        {
+          "title": "기획",
+          "value": "70"
+        }
+      ],
+      "screens": [
+        {
+          "image": "/media/pic-9e819eb4-ab8e-4f65-be77-3abfbce0f521.webp"
+        },
+        {
+          "image": "/media/pic-7b0f4777-69ed-4cee-9e35-c7c9d27df14f.png"
+        },
+        {
+          "image": "/media/pic-199148de-7c36-444e-8d6d-1c4fafbd905f.png"
+        },
+        {
+          "image": "/media/pic-d0a374be-d40e-4f15-9240-f5e13ffd92d9.png"
+        }
+      ],
+      "url": "https://play.unity.com/ko/games/753d3bc6-297f-460f-8036-b94006576502/colla-zoo",
+      "video": "/media/vid-a089e421-a317-45b3-b428-08d28421990a.mp4",
+      "videoAt": "1",
+      "role": "AI 개발 환경 구축 · 게임 시스템 구현 · 파츠 밸런싱",
+      "devPeriod": "2026.11.18 – 2026.11.23",
+      "contributionDetail": "Codex로 OpenAI 기반 로컬 Unity 개발 에이전트 구성: 브라우저 채팅·멀티 세션·프로젝트 인덱스·장기 기억\n동물 파츠 시트 임포트와 18개 파츠 카탈로그, 무작위 파츠 조합과 조합 계산 검증\n파츠 무게로 점프·파워를 정하는 규칙, 활강·부력·과학자 통과 능력\n7개 스테이지 진행·레벨 선택, 드론·과학자 적, 타이틀·엔딩 흐름\n효과음 생성·연결과 파츠·스테이지 검증 테스트, Windows/Mac 빌드"
     },
     {
       "slug": "ratsgo-5000",
-      "title": "HAI",
+      "title": "와... 너 정말, **핵심**을 찔렀어.",
       "category": "AI 대화 미니게임 · Unity",
       "award": "챌린저 상",
       "summary": "아직 학습이 끝나지 않은 인공지능 대신 사람들의 말에 답하는 대화 게임입니다. 부탁 하나에 답하려면 머릿속 회로 같은 미니게임을 통과해야 합니다. NHN 게임 × AI 해커톤 챌린저 상 수상작입니다.",
       "source": "https://github.com/k56754665/Ratsgo-5000",
       "sections": [
+        {
+          "title": "팀 구성",
+          "text": "3인 개발 · 기획·개발 2명, 아트 1명"
+        },
         {
           "title": "핵심 루프",
           "text": "말 걸기 → 자유 입력 대화 → 요청 → 미니게임 → 답신 → 토큰 → 시냅스 성장\n플레이어는 입력창에 무엇이든 쓸 수 있고, 유의미한 대화가 3회 오가면 상대가 본래 부탁을 꺼낸다."
@@ -103,25 +94,280 @@
           "text": "· 타이틀 명령 입력·로고·인트로 영상 연출\n· 회로 강화를 거쳐야 다음 모델이 열리는 시냅스 강화 트리와 노드 연출\n· 토큰 획득 연출, 엔딩 연출과 엔딩 시놉시스 문서\n· 대화 규칙 판정과 대화 재등장 버그 수정, 유형별 미니게임·가상 앱 걷어내기\n· Windows 실행 빌드"
         }
       ],
-      "feature": "1"
+      "feature": "1",
+      "aiChallenge": "1",
+      "challenge": "NHN 게임×AI 해커톤",
+      "contributionAreas": [
+        {
+          "title": "개발",
+          "value": "55"
+        },
+        {
+          "title": "기획",
+          "value": "70"
+        }
+      ],
+      "screens": [
+        {
+          "image": "/media/pic-5f4236fd-5097-4f0e-a75c-0357910eeae2.webp"
+        },
+        {
+          "image": "/media/pic-ce4d2311-d6f3-4ac8-8515-85513b97be76.png"
+        },
+        {
+          "image": "/media/pic-7095e23e-4d02-40af-99d4-4aad9d5b2cd6.png"
+        },
+        {
+          "image": "/media/pic-d8f5515b-818d-4c8f-9f7e-8a8a77fe06b7.png"
+        },
+        {
+          "image": "/media/pic-57fb5c91-ea1c-4d0d-99c7-e54df3db8375.png"
+        },
+        {
+          "image": "/media/pic-f89a88d0-a916-4a74-bae2-006315f843d1.png"
+        },
+        {
+          "image": "/media/pic-53124769-8235-4ab6-bae4-3e81ff28f380.png"
+        }
+      ],
+      "video": "/media/vid-b90ece4c-c86c-4c9e-bc56-5e2d6003c5a3.mp4",
+      "videoAt": "1",
+      "role": "기획 · 미니게임·대화 루프 구현",
+      "devPeriod": "2026.09.04 – 2026.09.05 (2일)",
+      "contributionDetail": "게임 데모 기획서 작성과 시냅스 노드 14개 데이터 설계\n미니게임 5종 구현: 선택지 고르기·타자 입력·디버깅·번역·수학 풀이\n요청 큐·인내 게이지·루프 컨트롤러와 미니게임 처리 슬롯\n대화 SO 구조 확정과 구글 시트 연동, 잡담 3회 뒤 요청이 나오는 대화 루프\n가상 앱 창·계산기 드래그 등 플레이 편의와 버그 수정"
     },
     {
-      "sections": [],
+      "sections": [
+        {
+          "title": "팀 구성",
+          "text": "3인 개발"
+        }
+      ],
+      "title": "천만해요, 순천만",
+      "slug": "suncheonman",
+      "feature": "1",
+      "award": "특별상",
+      "aiChallenge": "1",
+      "challenge": "순천 AI 게임잼",
+      "contributionAreas": [
+        {
+          "title": "개발",
+          "value": "27"
+        },
+        {
+          "title": "기획",
+          "value": "30"
+        }
+      ],
+      "screens": [
+        {
+          "image": "/media/pic-12199c1d-14dd-4e42-90f4-2ca0b605fc31.webp"
+        },
+        {
+          "image": "/media/pic-2d2972b9-2e71-495b-bb13-8e14bae097b6.webp"
+        },
+        {
+          "image": "/media/pic-f66eafbe-2d23-4c99-b911-dcbe7b928c28.webp"
+        },
+        {
+          "image": "/media/pic-e03c84c0-c81e-4ace-8b14-ca216eba4807.webp"
+        },
+        {
+          "image": "/media/pic-d5242f25-317a-4909-8d58-583c770089be.webp"
+        },
+        {
+          "image": "/media/pic-5ac579bf-8031-4fe4-b46b-5f3aa9557878.webp"
+        }
+      ],
+      "video": "https://youtu.be/nziwvdoJuYs?si=zsfCxX1h4gj1Oznj",
+      "videoAt": "1",
+      "url": "",
+      "source": "https://github.com/k56754665/SuncheonGameJam",
+      "category": "순천만 생태 미니게임 · Unity",
+      "summary": "순천 AI 게임잼에서 3인이 3일 동안 만든 게임입니다. 미니게임과 동물 도감으로 순천만을 담았고, 특별상을 받았습니다.",
+      "role": "미니게임·UI·사운드 구현 · 밸런싱",
+      "devPeriod": "2025.09.26 – 2025.09.28 (3일)",
+      "contributionDetail": "미니게임 구현과 성공·실패 결과 UI\n타이틀 씬 제작과 타이틀 연출\n사운드 적용·조정, 이미지와 폰트 적용\n1차 밸런싱"
+    },
+    {
+      "sections": [
+        {
+          "title": "팀 구성",
+          "text": "2인 개발 · 기획·시스템 1명, UI·연출·사운드 1명"
+        },
+        {
+          "title": "AI 협업",
+          "text": "저장소 규칙 문서(AGENTS.md)와 커밋 컨벤션을 먼저 정하고, 구현과 Git 작업을 AI 에이전트에게 맡겨 5일 동안 커밋 65건으로 완성했습니다."
+        },
+        {
+          "title": "제출 이후",
+          "text": "제출 후 PvP 모드를 추가로 구현해 itch.io에 공개했습니다."
+        }
+      ],
       "title": "오목 히어로즈",
       "slug": "5mokheros",
-      "feature": "1"
+      "feature": "1",
+      "aiChallenge": "1",
+      "challenge": "NHN 게임×AI 해커톤 사전과제",
+      "contributionAreas": [
+        {
+          "title": "개발",
+          "value": "50"
+        },
+        {
+          "title": "기획",
+          "value": "90"
+        }
+      ],
+      "screens": [
+        {
+          "image": "/media/pic-8acdb82c-919b-4c7c-9f73-00ffc9cf2886.webp"
+        },
+        {
+          "image": "/media/pic-e4f4d967-542b-429d-aa07-f57df9969b08.webp"
+        },
+        {
+          "image": "/media/pic-b4c635ce-8ba7-4315-8f47-f541aa8a3aae.webp"
+        },
+        {
+          "image": "/media/pic-f90bee59-8656-4c48-aa11-b884d2e7b879.webp"
+        },
+        {
+          "image": "/media/pic-3b0baf64-b703-48ac-bb28-c08e440ec166.webp"
+        }
+      ],
+      "source": "https://github.com/yhaaan/NAN2026-Project",
+      "url": "https://yohan.dotoridoguldan.com/NAN2026-Project/",
+      "video": "/media/vid-8bb77b5b-1fe0-4c06-a8cb-b585e69d842f.mp4",
+      "videoAt": "1",
+      "category": "오목 + 오토배틀 전략 · Unity · WebGL",
+      "role": "기획 · 게임 시스템·COM AI 구현 · 밸런싱",
+      "summary": "상점에서 역할이 다른 오목알을 골라 배치하고, 자동 전투로 상대 진형을 무너뜨리며 먼저 다섯 목을 완성하는 전략 게임입니다. 구현과 Git 작업은 AI 에이전트와 함께 진행했습니다.",
+      "devPeriod": "2026.08.06 – 2026.08.10 (5일)",
+      "contributionDetail": "오목 + 상점 오토배틀 기획서 작성: 15×15 자유룰, 3판 2선승, 5목 유지 승리, 5칸 상점·리롤 경제\n기본 오목 턴 시스템과 오토배틀 MVP 구현\n5목 생존 전투 판정과 탱커·딜러·힐러 등 역할군 설계·추가\n오목 COM: 공격·방어 수 판단, 상황별 유닛 선택, 치유 판단 개선\n상점 등급 제한과 치유사 회복량 등 밸런스 조정\n역할군 아이콘·데미지 팝업 연출, WebGL v0.1.0 빌드와 배포"
     },
     {
-      "sections": [],
-      "title": "몬스톤",
-      "slug": "monston",
-      "feature": "1"
+      "slug": "stellar-witch",
+      "title": "Stellar Witch",
+      "category": "인벤토리 관리 로그라이크 · Unity · Steam 출시",
+      "summary": "인벤토리 관리와 회피 액션을 결합한 로그라이크 게임입니다.",
+      "url": "https://store.steampowered.com/app/3822990/Stellar_Witch/",
+      "sections": [
+        {
+          "title": "개발 인원",
+          "text": "5인 개발"
+        },
+        {
+          "title": "출시 기록",
+          "text": "2025년 7월 Steam 출시. 2026년 11월 기준 리뷰 127개, ‘매우 긍정적’."
+        }
+      ],
+      "feature": "1",
+      "outcome": "Steam 리뷰 127개 · 매우 긍정적",
+      "contributionAreas": [
+        {
+          "title": "개발",
+          "value": "16"
+        },
+        {
+          "title": "기획",
+          "value": "10"
+        }
+      ],
+      "screens": [
+        {
+          "image": "/media/pic-955e6b86-92a0-4578-933a-9c4210340c31.png"
+        },
+        {
+          "image": "/media/pic-0bfedf82-3789-4d3a-8581-09408895b181.jpg"
+        },
+        {
+          "image": "/media/pic-24e20630-acbd-425e-b8e5-034875e914ab.jpg"
+        },
+        {
+          "image": "/media/pic-b61c7ecf-1b39-4267-9681-fa248aaf8af0.jpg"
+        },
+        {
+          "image": "/media/pic-540ce712-2b71-4649-afa9-aea05c0fc7f3.jpg"
+        },
+        {
+          "image": "/media/pic-15348e79-eaff-4b10-9a49-e6f487a5e1d7.jpg"
+        }
+      ],
+      "video": "/media/vid-cd60e86e-dd0f-4011-a17c-ccfca06c9d42.mp4",
+      "videoAt": "1",
+      "source": "https://github.com/yhaaan/EpicProject_Team1",
+      "role": "시스템·UI 프로그래밍 · 튜토리얼 · Steam 연동",
+      "devPeriod": "2025.05.27 – 2025.07.29 (약 2개월)",
+      "contributionDetail": "그리드 시스템과 배치 미리보기·회전, 상점 슬롯에서 그리드까지 이어지는 드래그\n상점 씬과 보관함 시스템, 정보 패널 UI\n튜토리얼 제작과 QA 이슈 처리\n데미지 표기·보스 피격 이펙트, 타이틀·로고 씬과 페이드\nSteamworks 도전과제·통계 연동, 플레이 로그 수집, 세이브·설정·언어 저장\n정식 출시용 초기화 프로세스와 1.0.2·1.0.3 업데이트"
+    },
+    {
+      "slug": "hamstory",
+      "title": "HamStory",
+      "category": "세로 스크롤 플랫포머 · Unity · 콘솔 출시",
+      "summary": "세로로 스크롤하는 플랫포머 점프 게임입니다.",
+      "url": "https://store.steampowered.com/app/4008550/Hamstory/",
+      "sections": [
+        {
+          "title": "팀 구성",
+          "text": "2인 개발 · 프로그래밍 1명, 아트 1명"
+        },
+        {
+          "title": "전시와 출시",
+          "text": "2024년 5월 PlayX4 전시\n2026년 3월 Steam 출시\n2026년 5월 PlayX4 IGIB 부스 선정\n2026년 6월 콘솔 버전 출시"
+        }
+      ],
+      "feature": "1",
+      "outcome": "Steam · 콘솔 출시",
+      "contributionAreas": [],
+      "screens": [
+        {
+          "image": "/media/pic-db47f174-bdd5-43a8-80ad-db135938f1c9.png"
+        }
+      ]
+    },
+    {
+      "slug": "floor",
+      "title": "FLOOR",
+      "category": "큐브 쌓기 · Unity",
+      "summary": "큐브를 쌓아 올리는 게임입니다.",
+      "url": "https://play.unity.com/ko/games/517b467b-edfc-47b5-bf8e-95cb2a7b62a6/floor",
+      "sections": [
+        {
+          "title": "팀 구성",
+          "text": "3인 개발 · 개발 1명, 기획 1명, 아트 1명"
+        }
+      ],
+      "feature": "1",
+      "contributionAreas": [
+        {
+          "title": "개발",
+          "value": "100"
+        }
+      ],
+      "screens": [
+        {
+          "image": "/media/pic-3cba3fe4-74eb-4793-b985-3f18e1c66ec6.png"
+        },
+        {
+          "image": "/media/pic-af4a36bf-d7be-465b-9fa3-cd92d96cf602.png"
+        },
+        {
+          "image": "/media/pic-993c8b3f-1488-4781-8cf1-022b1f16db11.png"
+        }
+      ],
+      "source": "https://github.com/yhaaan/Floor_Project",
+      "role": "프로그래밍",
+      "devPeriod": "크래프톤 정글 게임랩 WEEK12 (1주)",
+      "contributionDetail": "Unity로 큐브를 쌓아 올리는 게임 구현 (크래프톤 정글 게임랩 WEEK12)",
+      "video": "https://youtu.be/K7kkkGWsLPA?si=XdTJgKtPMeJfqsu8",
+      "videoAt": "1"
     },
     {
       "slug": "snow-love",
       "title": "눈사랑",
       "category": "스토리 선택지 · Unity",
-      "summary": "픽셀 아트로 그린 2D 스토리 선택지 게임입니다.",
+      "summary": "“눈사람이 녹으면, 봄이 오겠지. 그때 다시 놀자.” 아픈 엄마와의 추억을 눈사람에 담은 2D 스토리 선택지 게임입니다.",
       "source": "https://github.com/yhaaan/snowlove",
       "sections": [
         {
@@ -133,14 +379,41 @@
           "text": "2025년 2월 만들래 10분 게임 콘테스트 10위"
         }
       ],
-      "award": "콘테스트 10위",
-      "feature": "1"
+      "feature": "1",
+      "outcome": "콘테스트 10위",
+      "contributionAreas": [
+        {
+          "title": "개발",
+          "value": "100"
+        }
+      ],
+      "screens": [
+        {
+          "image": "/media/pic-b8d408d9-96db-433f-9836-837bfd2eed13.png"
+        },
+        {
+          "image": "/media/pic-379cab29-fd4a-48eb-bb8e-19e447d4f40d.png"
+        },
+        {
+          "image": "/media/pic-8fd1824f-2c65-4d99-aa32-f901ba9a8d0a.png"
+        },
+        {
+          "image": "/media/pic-80ca90fb-5178-4719-a5b6-1468e985a3a6.png"
+        },
+        {
+          "image": "/media/pic-4b606cce-833b-4e74-9668-ed037e0287b4.png"
+        }
+      ],
+      "url": "https://play.unity.com/en/games/1d1b722c-e0df-481e-96a2-2255d95bd800/snowman",
+      "role": "프로그래밍 (팀 유일 개발자)",
+      "devPeriod": "2025.02 (약 5일)",
+      "contributionDetail": "Unity로 이동·상호작용·선택지 진행 구현 (WASD 이동, E 상호작용, 마우스 선택)\n픽셀 아트 리소스 적용과 WebGL 빌드, 만들래 공모전 제출"
     },
     {
       "slug": "bystander",
       "title": "방관자 (Bystander)",
       "category": "선택지 탐험 · Unity",
-      "summary": "선택지를 따라 탐험하는 2D 게임입니다.",
+      "summary": "빛이 없으면 살 수 없는 세계에서 자원을 아끼며 위험에 빠진 이들을 돕거나 방치하는, 트롤리 딜레마를 담은 2D 탐험 게임입니다.",
       "source": "https://github.com/yhaaan/bystander",
       "sections": [
         {
@@ -152,8 +425,40 @@
           "text": "2025년 2월 만들래 10분 게임 콘테스트 7위"
         }
       ],
-      "award": "콘테스트 7위",
-      "feature": "1"
+      "feature": "1",
+      "outcome": "콘테스트 7위",
+      "contributionAreas": [
+        {
+          "title": "개발",
+          "value": "100"
+        }
+      ],
+      "screens": [
+        {
+          "image": "/media/pic-1d129d26-5da2-4589-8718-de9e5f43429a.png"
+        },
+        {
+          "image": "/media/pic-ea42777d-ee78-404d-bf3c-93c0549cdbd4.png"
+        },
+        {
+          "image": "/media/pic-38631098-fb0e-4755-a2e8-21515c3dc37e.png"
+        },
+        {
+          "image": "/media/pic-825c8cb0-8b3d-4103-b57a-a2d650baf12e.png"
+        },
+        {
+          "image": "/media/pic-d93dce08-1c6a-499c-b5e8-b1dcacb9ea8e.png"
+        }
+      ],
+      "url": "https://play.unity.com/en/games/5b2c0300-c291-4f9b-bd0d-40d489dab8c8/bystander",
+      "role": "프로그래밍 (팀 유일 개발자)",
+      "devPeriod": "2025.02 (약 5일)",
+      "contributionDetail": "Unity로 탐험·상호작용과 성냥 켜기(빛 자원) 구현\n돕기·방치 선택지와 선택에 따라 달라지는 진행 구현\nWebGL 빌드와 만들래 공모전 제출"
+    },
+    {
+      "sections": [],
+      "title": "몬스톤",
+      "slug": "monston"
     },
     {
       "slug": "nara-price-quiz",
@@ -171,25 +476,9 @@
           "title": "내가 한 것",
           "text": "· Supabase 온라인 랭킹 연결과 기기별 최고 점수 기록\n· 카카오·시스템 공유 버튼\n· 규칙 조정: 시간 모드를 문제 수 선택으로 교체, 10문제·±10%·추측 횟수 조정, 가격 비교 표시\n· 배포마다 에셋 주소 버전 갱신"
         }
-      ]
-    },
-    {
-      "sections": [],
-      "title": "PLAY it YOUR WAY",
-      "slug": "playstation"
-    },
-    {
-      "slug": "floor",
-      "title": "FLOOR",
-      "category": "큐브 쌓기 · Unity",
-      "summary": "큐브를 쌓아 올리는 게임입니다.",
-      "url": "https://play.unity.com/ko/games/517b467b-edfc-47b5-bf8e-95cb2a7b62a6/floor",
-      "sections": [
-        {
-          "title": "팀 구성",
-          "text": "3인 개발 · 개발 1명, 기획 1명, 아트 1명"
-        }
-      ]
+      ],
+      "aiChallenge": "1",
+      "challenge": "조달청 AI 공모전"
     },
     {
       "slug": "bbangtazia",
@@ -414,7 +703,7 @@
     {
       "period": "2020~",
       "title": "세종대학교 컴퓨터공학과",
-      "text": "학력 · 기존 프로필 작성 당시 재학"
+      "text": ""
     },
     {
       "period": "2020",
@@ -427,15 +716,15 @@
   "highlights": [
     {
       "auto": "projects",
-      "label": "프로젝트"
+      "label": "Projects"
     },
     {
       "auto": "awards",
-      "label": "게임 분야 수상·입상"
+      "label": "Awards"
     },
     {
       "auto": "ai",
-      "label": "AI 게임잼·해커톤·공모전 참가"
+      "label": "AI Challenges"
     }
   ],
   "credentials": [

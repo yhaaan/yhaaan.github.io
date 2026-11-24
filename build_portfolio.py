@@ -8,7 +8,7 @@ from html import escape
 from pathlib import Path, PurePosixPath
 from string import Template
 from tempfile import TemporaryDirectory
-from urllib.parse import quote, urlsplit
+from urllib.parse import parse_qs, quote, urlsplit
 
 BASE = Path(__file__).resolve().parent
 SITE = BASE / 'site'
@@ -24,8 +24,9 @@ LABELS = {
     'next': '다음', 'pause': '일시 정지', 'resume': '재생', 'archive': '아카이브',
     'skills': '스킬', 'toolkit': 'TOOLKIT', 'primary': '많이 해봤어요', 'secondary': '해본 적 있어요',
     'experience': '이력', 'photos': '사진', 'history': '이전 프로필', 'top': '맨 위로 ↑', 'footer': 'Portfolio',
-    'highlights': '한눈에', 'award': '수상',
-    'roleLabel': '역할',
+    'highlights': '한눈에', 'award': '수상', 'aiChallengeTag': 'AI Challenge', 'profileTitle': 'Profile',
+    'roleLabel': '역할', 'devPeriodLabel': '개발 기간', 'contributionLabel': '기여도',
+    'contributionDetailLabel': '상세 기여',
 }
 ACTIVITY_KINDS = {'게임잼', '팀 활동', '공모전', '대외활동', '부트캠프', '전시', '동아리', '학력', '해커톤', '교내대회'}
 LINK_KINDS = {
@@ -51,9 +52,58 @@ def text(row, key, required=False):
     return value.strip()
 
 
+def percent(row, key, required=False):
+    raw = row.get(key, '')
+    if raw == '' and not required:
+        return None
+    # Capture only the significant digits, even if the input has leading zeros.
+    m = re.fullmatch(r'0*(100|[0-9]{1,2})', raw) if isinstance(raw, str) else None
+    if not m:
+        raise ValueError(f'{key}: 기여도는 0부터 100까지의 정수로 입력하세요.')
+    return int(m[1])
+
+
+def project_contribution(row):
+    blocks = row.get('contributionAreas', [])
+    if not isinstance(blocks, list):
+        raise ValueError('분야별 기여도 목록을 확인하세요.')
+    areas = []
+    for block in blocks:
+        if not isinstance(block, dict) or block.keys() - {'title', 'value'}:
+            raise ValueError('분야별 기여도 항목을 확인하세요.')
+        areas.append((text(block, 'title', True), percent(block, 'value', required=True)))
+    lines = [line.strip() for line in text(row, 'contributionDetail').splitlines() if line.strip()]
+    return text(row, 'devPeriod'), percent(row, 'contribution'), areas, lines
+
+
+def youtube_id(parsed):
+    """Return only an ID suitable for constructing our own thumbnail and embed URLs."""
+    if parsed.port not in (None, 443):
+        return ''
+    host = re.sub(r'^(?:www\.|m\.)', '', parsed.hostname or '')
+    if host == 'youtu.be':
+        candidate = parsed.path[1:]
+    elif host == 'youtube.com' and parsed.path == '/watch':
+        ids = parse_qs(parsed.query, keep_blank_values=True).get('v', [])
+        candidate = ids[0] if len(ids) == 1 else ''
+    elif host == 'youtube.com' and parsed.path.startswith(('/shorts/', '/embed/')):
+        candidate = parsed.path.split('/', 2)[2]
+    else:
+        return ''
+    return candidate if re.fullmatch(r'[A-Za-z0-9_-]{11}', candidate) else ''
+
+
+LOCAL_VIDEO = re.compile(r'/media/vid-[a-f0-9-]{36}\.(?:mp4|webm)')
+
+
 def https_url(value, label, video=False):
     if value in (None, ''):
         return ''
+    if video and isinstance(value, str) and value.startswith('/media/'):
+        # A video file uploaded from the local editor lives next to the images.
+        if not LOCAL_VIDEO.fullmatch(value):
+            raise ValueError('영상: 업로드한 영상 파일 경로가 올바르지 않습니다.')
+        return value
     try:
         if not isinstance(value, str) or not re.fullmatch(r'https://[^\s\\\x00-\x1f\x7f]+', value):
             raise ValueError
@@ -63,9 +113,41 @@ def https_url(value, label, video=False):
         _ = parsed.port  # Reject malformed ports as well as malformed hosts.
     except ValueError as exc:
         raise ValueError(f'{label}: https:// 로 시작하는 전체 주소가 필요합니다.') from exc
-    if video and not parsed.path.lower().endswith(('.mp4', '.webm')):
-        raise ValueError('영상: https MP4 또는 WebM 주소가 필요합니다.')
+    if video and not parsed.path.lower().endswith(('.mp4', '.webm')) and not youtube_id(parsed):
+        raise ValueError('영상: https MP4·WebM 파일 또는 YouTube 영상 주소가 필요합니다.')
     return value
+
+
+def link_buttons(row, links, stretch=False):
+    # Round icon buttons: a play triangle for a playable build, the GitHub mark for source code.
+    out = ''
+    for n, (kind, href) in enumerate(links):
+        name = LINK_KINDS[kind][0]
+        css = 'link-btn stretch' if stretch and n == 0 else 'link-btn'
+        out += (f'<a class="{css}" data-link="{kind}" href="{escape(href)}" target="_blank" rel="noopener" '
+                f'title="{name}"><span class="link-icon" aria-hidden="true">{LINK_KINDS[kind][1]}</span>'
+                f'<span class="sr-only">{escape(text(row, "title"))} {name}</span></a>')
+    return out
+
+
+def media_position(row):
+    # Where the video sits among the gallery images; absent means first.
+    raw = row.get('videoAt', '')
+    if raw == '':
+        return 0
+    if not isinstance(raw, str) or not re.fullmatch(r'[0-9]{1,3}', raw):
+        raise ValueError('videoAt: 영상 위치는 0 이상의 정수여야 합니다.')
+    return int(raw)
+
+
+def first_image(row):
+    # The project card uses the first image of the detail gallery.
+    if text(row, 'image'):
+        return row['image'], 'image'
+    for j, block in enumerate(row.get('screens') or []):
+        if isinstance(block, dict) and text(block, 'image'):
+            return block['image'], f'screens.{j}.image'
+    return '', 'image'
 
 
 def timeline(body):
@@ -97,6 +179,17 @@ def span(group, index, key, value):
     return f'<span {mapping(group, index, key)}>{escape(value)}</span>'
 
 
+def has_project_award(row):
+    return bool(text(row, 'award'))
+
+
+def is_ai_challenge(row):
+    value = row.get('aiChallenge', '')
+    if value not in ('', '1'):
+        raise ValueError('aiChallenge: 지원하지 않는 값입니다.')
+    return value == '1'
+
+
 def content_flags(row):
     fragments = [text(row, k) for k in ('title', 'category', 'summary', 'text')]
     for section in row.get('sections') or []:
@@ -125,15 +218,18 @@ class Portfolio:
         url = https_url(url, key)
         return f'<a href="{escape(url)}">{self.label(key)}</a>' if url else ''
 
-    def image(self, row, root, alt, group, index, key='image', css=''):
-        raw = row.get('image')
+    def image_src(self, row, root):
+        return self.media_file(row.get('image'), root, ('.png', '.jpg', '.jpeg', '.webp', '.gif', '.avif'))
+
+    def media_file(self, raw, root, suffixes):
+        """Copy one uploaded file from site/media into the output and return its page-relative URL."""
         if not raw:
             return ''
         if (not isinstance(raw, str) or not raw.startswith('/media/') or '\\' in raw
                 or any(ord(c) < 32 for c in raw) or any(p in ('', '.', '..') for p in raw[1:].split('/'))):
             raise ValueError(f'지원하지 않는 이미지 경로: {raw}')
         rel = PurePosixPath(raw[1:])
-        if rel.suffix.lower() not in ('.png', '.jpg', '.jpeg', '.webp', '.gif', '.avif'):
+        if rel.suffix.lower() not in suffixes:
             raise ValueError(f'지원하지 않는 이미지 경로: {raw}')
         src = (self.site / rel).resolve()
         if not src.is_relative_to((self.site / 'media').resolve()) or not src.is_file():
@@ -142,14 +238,21 @@ class Portfolio:
         if not dest.exists():
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(src, dest)
-        return (f'<img class="{css}" {mapping(group, index, key)} src="{root}{quote(str(rel))}" '
+        return root + quote(str(rel))
+
+    def image(self, row, root, alt, group, index, key='image', css=''):
+        src = self.image_src(row, root)
+        if not src:
+            return ''
+        return (f'<img class="{css}" {mapping(group, index, key)} src="{src}" '
                 f'alt="{escape(alt)}" loading="lazy" decoding="async">')
 
     def page(self, path, root, title, description, body, current='projectNav'):
         home = root + 'index.html'
         active = ' aria-current="location"'
-        links = [('projectNav', home + '#projects')]
-        links += [('profileNav', home + '#profile'), ('activityNav', home + '#activity')]
+        nav_home = home if root else ''
+        links = [('projectNav', nav_home + '#projects'), ('profileNav', nav_home + '#profile'),
+                 ('activityNav', nav_home + '#activity')]
         nav = ''.join(f'<a href="{href}"{active if key == current else ""}>{self.label(key)}</a>'
                       for key, href in links)
         brand_key = 'handle' if text(self.profile, 'handle') else 'name'
@@ -165,34 +268,104 @@ class Portfolio:
 
     def media(self, row, group, i, root):
         title = text(row, 'title', True)
-        slides = []
-        main = self.image(row, root, title, group, i)
-        if main:
-            slides.append(main)
-        for j, block in enumerate(row.get('sections') or []):
-            prefix = f'sections.{j}.'
-            caption = text(block, 'caption')
-            pic = self.image(block, root, caption or text(block, 'title'), group, i, prefix + 'image')
-            if pic:
-                cap = f'<figcaption>{span(group, i, prefix + "caption", caption)}</figcaption>' if caption else ''
-                slides.append(pic + cap)
-        url = https_url(row.get('video'), '영상', video=True)
-        if not slides:
-            if not url:
-                return ''  # No uploaded media: the page goes straight from the title to the text.
-            slides.append('<div class="title-cover" aria-hidden="true"></div>')
-        frames = ''.join(f'<figure class="slide">{s}</figure>' for s in slides)
-        movie = f'<video muted playsinline preload="none" hidden data-src="{escape(url)}"></video>' if url else ''
-        controls = ''
-        if url or len(slides) > 1:
-            controls = (f'<div class="deck-controls" hidden><button type="button" data-prev>{self.label("prev")}</button>'
-                        f'<button type="button" data-pause><span data-stop>{self.label("pause")}</span>'
-                        f'<span data-start hidden>{self.label("resume")}</span></button>'
-                        f'<button type="button" data-next>{self.label("next")}</button></div>')
-        return f'<div class="deck"><div class="stage">{frames}{movie}</div>{controls}</div>'
+        slides, thumbs = [], []
+        play = '<span class="media-play" aria-hidden="true">▶</span>'
 
-    def detail(self, row, group, i, href):
-        """Title, media when uploaded, then a lede with its links beside a compact fact list."""
+        def add(content, preview, label, key, caption=''):
+            slides.append(f'<figure class="media-slide"><div class="media-frame" {mapping(group, i, key)}>'
+                          f'{content}</div>{caption}</figure>')
+            n = len(slides)
+            current = ' aria-current="true"' if n == 1 else ''
+            thumbs.append(f'<button type="button" class="media-thumb" data-media="{key.removesuffix(".image")}" '
+                          f'aria-label="{n}. {escape(label)}"{current}>{preview}</button>')
+
+        def picture(block, prefix, fallback, caption=''):
+            src = self.image_src(block, root)
+            if src:
+                alt = caption or fallback
+                cap = f'<figcaption>{span(group, i, prefix + "caption", caption)}</figcaption>' if caption else ''
+                add(f'<img src="{src}" alt="{escape(alt)}" loading="lazy" decoding="async">',
+                    f'<img src="{src}" alt="" loading="lazy">', alt, prefix + 'image', cap)
+
+        url = row.get('video')  # Validated before rendering the project.
+        video_item = None
+        if url:
+            ident = youtube_id(urlsplit(url))
+            label = title + ' 영상'
+            if ident:
+                preview = f'<img src="https://i.ytimg.com/vi/{ident}/hqdefault.jpg" alt="" loading="lazy">' + play
+                movie = (f'<a class="media-facade" data-youtube="{ident}" data-title="{escape(title)}" '
+                         f'aria-label="{escape(label)} 재생" href="https://www.youtube.com/watch?v={ident}" '
+                         f'target="_blank" rel="noopener">{preview}</a>')
+            else:
+                preview = play
+                if url.startswith('/media/'):
+                    url = self.media_file(url, root, ('.mp4', '.webm'))
+                movie = (f'<video controls playsinline preload="metadata" src="{escape(url)}" '
+                         f'aria-label="{escape(label)}"></video>')
+            video_item = (movie, preview, label, 'video')
+        video_at = media_position(row)
+        if video_item and video_at == 0:
+            add(*video_item)
+        picture(row, '', title)
+        for j, block in enumerate(row.get('screens', [])):
+            if video_item and len(slides) == video_at:
+                add(*video_item)
+                video_item = None
+            picture(block, f'screens.{j}.', f'{title} 스크린샷 {j + 1}', text(block, 'caption'))
+        if video_item and video_at:
+            add(*video_item)  # A position past the last image puts the video at the end.
+        for j, block in enumerate(row.get('sections') or []):
+            picture(block, f'sections.{j}.', text(block, 'title'), text(block, 'caption'))
+        if not slides:
+            return (f'<button type="button" class="media-placeholder" {mapping(group, i, "screens")}>'
+                    '이미지·영상 추가</button>')
+        arrows = strip = ''
+        if len(slides) > 1:
+            buttons = ''.join(f'<button type="button" data-{key} '
+                              f'aria-label="{escape(self.labels[key])}">{arrow}</button>'
+                              for key, arrow in [('prev', '❮'), ('next', '❯')])
+            arrows = f'<div class="media-arrows" hidden>{buttons}</div>'
+            strip = (f'<div class="media-nav" hidden><p class="media-count" role="status">1 / {len(slides)}</p>'
+                     f'<div class="media-thumbs">{"".join(thumbs)}</div></div>')
+        return (f'<section class="media-gallery" aria-label="{escape(title)} 미디어"><div class="media-stage">'
+                f'{"".join(slides)}{arrows}</div>{strip}</section>')
+
+    def contribution_block(self, i, period, overall, areas, lines):
+        if not period and not areas and not lines:
+            return (f'<button type="button" class="contribution-placeholder" {mapping("projects", i, "devPeriod")}>'
+                    '개발 기간·기여도 입력</button>')
+
+        def meter(key, value, label):
+            return (f'<div class="contribution-track" role="meter" aria-valuemin="0" aria-valuemax="100" '
+                    f'aria-valuenow="{value}" aria-label="{escape(label)}" {mapping("projects", i, key)}>'
+                    f'<div style="width:{value}%"></div></div>')
+
+        cells = []
+        if period:
+            cells.append(f'<div><h2>{self.label("devPeriodLabel")}</h2><p class="contribution-period">'
+                         f'{span("projects", i, "devPeriod", period)}</p></div>')
+        # No single overall figure: the contribution reads as one bar per part (개발, 기획).
+        if areas:
+            rows = []
+            for j, (title, value) in enumerate(areas):
+                prefix = f'contributionAreas.{j}.'
+                name = span('projects', i, prefix + 'title', title)
+                number = span('projects', i, prefix + 'value', f'{value}%')
+                bar = meter(prefix + 'value', value, title + ' ' + self.labels['contributionLabel'])
+                rows.append(f'<li>{name}{bar}{number}</li>')
+            heading = f'<h2>{self.label("contributionLabel")}</h2>'
+            cells.append(f'<div class="contribution-areas">{heading}<ul>{"".join(rows)}</ul></div>')
+        grid = f'<div class="contribution-grid">{"".join(cells)}</div>' if cells else ''
+        detail = ''
+        if lines:
+            items = ''.join(f'<li {mapping("projects", i, "contributionDetail")}>{escape(line)}</li>' for line in lines)
+            detail = (f'<div class="contribution-detail"><h2>{self.label("contributionDetailLabel")}</h2>'
+                      f'<ul class="contribution-list">{items}</ul></div>')
+        return f'<section class="contribution">{grid}{detail}</section>'
+
+    def detail(self, row, group, i, href, contribution=None):
+        """Title and media, project contribution, then the lede, links and fact list."""
         project = group == 'projects'
         title = text(row, 'title', True)
         desc_key, meta_key = ('summary', 'category') if project else ('text', 'period')
@@ -200,7 +373,7 @@ class Portfolio:
         e = lambda k: span(group, i, k, text(row, k))
         root = '../../'
         actions = [self.action(row.get('url'), 'live' if project else 'related', True),
-                   self.action(row.get('source'), 'source'), self.action(row.get('video'), 'videoLink')]
+                   self.action(row.get('source'), 'source')]  # The video plays in the gallery above.
         facts, prose, dated = [], [], False
         if project:
             role = text(row, 'role')
@@ -239,6 +412,7 @@ class Portfolio:
         info = f'<dl class="facts">{"".join(facts)}</dl>' if facts else ''
         detail = (f'<article class="detail"><header><h1>{e("title")}</h1>{subtitle}</header>'
                   + self.media(row, group, i, root)
+                  + (self.contribution_block(i, *contribution) if contribution is not None else '')
                   + (f'<div class="overview"><div>{lede}{links}</div>{info}</div>' if lede or links or info else '')
                   + ''.join(prose) + '</article>')
         self.page(href + 'index.html', root, f'{title} | {self.name}', desc or title, detail)
@@ -252,7 +426,10 @@ class Portfolio:
         name = next((n for h, n in KNOWN_HOSTS if host == h or host.endswith('.' + h)), '')
         label = escape(name) if name else self.label(key)
         css = 'action primary' if primary else 'action'
-        return f'<a class="{css}" href="{escape(url)}" target="_blank" rel="noopener">{label}</a>'
+        kind = {'live': 'play', 'source': 'source'}.get(key)
+        icon = f'<span class="action-icon" aria-hidden="true">{LINK_KINDS[kind][1]}</span>' if kind else ''
+        data = f' data-link="{kind}"' if kind else ''
+        return f'<a class="{css}"{data} href="{escape(url)}" target="_blank" rel="noopener">{icon}{label}</a>'
 
     def work(self, row, i, tier):
         slug = text(row, 'slug')  # Validated in catalog before use in attributes.
@@ -264,7 +441,8 @@ class Portfolio:
         # styles present the correct variant immediately when a work changes lists.
         large = tier == '1' or self.api
         rich = tier != '0' or self.api
-        pic = self.image(row, '', '', 'projects', i) if large else ''
+        cover, cover_key = first_image(row)
+        pic = self.image({'image': cover}, '', '', 'projects', i, cover_key) if large and cover else ''
         info = []
         if text(row, 'category'):
             info.append(f'<small class="work-category">{e("category")}</small>')
@@ -279,36 +457,44 @@ class Portfolio:
                         team = span('projects', i, f'sections.{j}.text', text(block, 'text'))
                         info.append(f'<p class="work-team">{team}</p>')
                     break
-        if rich:
+        if rich and text(row, 'outcome'):
             # Cards stay short: the role is read on the detail page.
-            for k in ('outcome', 'award'):
-                if text(row, k):
-                    info.append(f'<strong class="{k}">{e(k)}</strong>')
+            info.append(f'<strong class="outcome">{e("outcome")}</strong>')
+        # The green line is for awards only; an AI challenge work names its event before the prize.
+        if rich and text(row, 'award'):
+            event = f'{e("challenge")} · ' if is_ai_challenge(row) and text(row, 'challenge') else ''
+            info.append(f'<strong class="award">{event}{e("award")}</strong>')
         # Featured works open their detail page; the rest open their playable build
         # or source directly, and stay unlinked until the owner adds either one.
         attrs = f'class="tile tone-{i % 4}" data-record="projects" data-index="{i}"'
-        buttons = ''
+        # The play link and the GitHub link each get their own round button on every card.
+        links = [(kind, https_url(row.get(key), LINK_KINDS[kind][0] + ' 링크'))
+                 for kind, key in (('play', 'url'), ('source', 'source'))]
+        links = [(kind, href) for kind, href in links if href]
+        buttons = card_links = ''
         if tier == '0':
-            # Other works have no detail page. The play link and the GitHub link each get their own
-            # button; the first one present also covers the whole block so the row stays clickable.
-            links = [(kind, https_url(row.get(key), LINK_KINDS[kind][0] + ' 링크'))
-                     for kind, key in (('play', 'url'), ('source', 'source'))]
-            links = [(kind, href) for kind, href in links if href]
-            for n, (kind, href) in enumerate(links):
-                name = LINK_KINDS[kind][0]
-                css = 'link-btn stretch' if n == 0 else 'link-btn'
-                buttons += (f'<a class="{css}" data-link="{kind}" href="{escape(href)}" target="_blank" rel="noopener" '
-                            f'title="{name}"><span class="link-icon" aria-hidden="true">{LINK_KINDS[kind][1]}</span>'
-                            f'<span class="sr-only">{escape(text(row, "title"))} {name}</span></a>')
+            # Other works have no detail page: the first link also covers the whole block.
             tag = 'div'
             if links:
                 attrs += ' data-linked'
-                buttons = f'<span class="link-buttons">{buttons}</span>'
+                buttons = f'<span class="link-buttons">{link_buttons(row, links, stretch=True)}</span>'
         else:
+            # Featured cards open the detail page; their link buttons sit beside the card link,
+            # in the footer's right corner, because links cannot nest.
             tag, attrs = 'a', attrs + f' href="projects/{slug}/"'
-        return (f'<li class="work" data-slug="{slug}" data-index="{i}"><{tag} {attrs}>'
-                f'<div class="work-cover">{pic}<h3>{e("title")}</h3></div>'
-                f'<div class="work-info">{"".join(info)}</div>{buttons}</{tag}></li>')
+            if links:
+                card_links = f'<span class="link-buttons card-links">{link_buttons(row, links)}</span>'
+        # Works made for an AI jam, hackathon or contest carry an "AI Challenge" band in the
+        # cover's top-right corner; the event's name sits with the award below.
+        badge = ''
+        if is_ai_challenge(row):
+            badge = f'<span class="ai-tag">{self.label("aiChallengeTag")}</span>'
+        flags = ' data-award="1"' if has_project_award(row) else ''
+        if is_ai_challenge(row):
+            flags += ' data-ai="1"'
+        return (f'<li class="work" data-slug="{slug}" data-index="{i}"{flags}><{tag} {attrs}>'
+                f'<div class="work-cover">{pic}{badge}<h3>{e("title")}</h3></div>'
+                f'<div class="work-info">{"".join(info)}</div>{buttons}</{tag}>{card_links}</li>')
 
     def catalog(self):
         slugs = set()
@@ -320,8 +506,17 @@ class Portfolio:
             slugs.add(slug)
             if row.get('feature', '') not in ('', '1', '2'):
                 raise ValueError('feature: 지원하지 않는 값입니다.')
+            https_url(row.get('video'), '영상', video=True)
+            screens = row.get('screens', [])
+            if not isinstance(screens, list):
+                raise ValueError('스크린샷 목록을 확인하세요.')
+            for screen in screens:
+                if not isinstance(screen, dict) or not text(screen, 'image'):
+                    raise ValueError('스크린샷 이미지를 선택하세요.')
+                text(screen, 'caption')
+            contribution = project_contribution(row)  # Validate even projects without a detail page.
             if row.get('feature'):
-                self.detail(row, 'projects', i, f'projects/{slug}/')
+                self.detail(row, 'projects', i, f'projects/{slug}/', contribution)
             buckets[row.get('feature') or '0'].append((i, row))
 
         shelves = []
@@ -335,16 +530,13 @@ class Portfolio:
         return '<div id="projects">' + ''.join(shelves) + '</div>'
 
     def auto_count(self, kind):
-        # Counts follow the records, so adding a project or an award updates the summary.
-        experience = self.data.get('experience') or []
+        projects = self.data.get('projects') or []
         if kind == 'projects':
-            return len(self.data.get('projects') or [])
+            return len(projects)
         if kind == 'awards':
-            return sum(1 for row in experience if text(row, 'award'))
+            return sum(has_project_award(row) for row in projects)
         if kind == 'ai':
-            # An AI-themed jam, hackathon or contest; other AI activities are not competitions.
-            events = (text(row, 'title') + '\n' + text(row, 'text') for row in experience)
-            return sum(1 for evidence in events if AI.search(evidence) and COMPETITION.search(evidence))
+            return sum(is_ai_challenge(row) for row in projects)
         raise ValueError('auto: 지원하지 않는 값입니다.')
 
     def highlights(self):
@@ -356,14 +548,20 @@ class Portfolio:
             else:
                 value = span('highlights', i, 'value', text(row, 'value', True))
             label = span('highlights', i, 'label', text(row, 'label', True))
-            cells.append(f'<li><b>{value}</b><span>{label}</span></li>')
+            content = f'<b>{value}</b><span>{label}</span>'
+            if kind:
+                cells.append(f'<li><button type="button" class="stat" data-filter="{kind}" aria-pressed="false" '
+                             f'aria-controls="projects">{content}</button></li>')
+            else:
+                cells.append(f'<li class="stat">{content}</li>')
         if not cells:
             return ''
         return (f'<section class="highlights" aria-labelledby="highlights-title">'
-                f'<h2 id="highlights-title">{self.label("highlights")}</h2><ul>{"".join(cells)}</ul></section>')
+                f'<h2 id="highlights-title" class="sr-only">{self.label("highlights")}</h2><ul>{"".join(cells)}</ul>'
+                '<p id="works-filter-status" class="sr-only" aria-live="polite" aria-atomic="true"></p></section>')
 
     def profile_credentials(self):
-        """Education and completed programs, listed under the role as period + name + status."""
+        """Education and completed programs, listed above skills as period + name + status."""
         rows = []
         for i, row in enumerate(self.data.get('credentials') or []):
             period = text(row, 'period')
@@ -424,12 +622,7 @@ class Portfolio:
                     year = y or year
                     out.append(self.activity_row(row, i))
                 return ''.join(out)
-            visible = render(rows[:5])
-            if len(rows) > 5:
-                visible += ('<details class="earlier-activities"><summary>'
-                            f'<span>{self.label("allActivities")} '
-                            f'<small class="activity-count">+{len(rows) - 5}</small></span></summary>'
-                            '<div class="disclosure-body">' + render(rows[5:]) + '</div></details>')
+            visible = render(rows)  # The profile sits below the works, so the whole history stays open.
             chunks.append(f'<section id="experience" aria-label="{escape(self.labels["experience"])}">{visible}</section>')
         photos = []
         for i, row in enumerate(self.data.get('photos') or []):
@@ -443,10 +636,7 @@ class Portfolio:
         content = ''.join(chunks) or f'<p>{self.label("empty")}</p>'
         return f'<section id="activity" aria-label="{escape(self.labels["activityNav"])}">{content}</section>'
 
-    def profile_content(self):
-        root = ''
-        role = text(self.profile, 'role') or 'AI Game Maker'
-        pic = self.image(self.profile, root, self.name, 'profile', 0, css='portrait')
+    def profile_link_row(self):
         links = [self.link(self.profile.get('github'), 'github')]
         boj = https_url(self.profile.get('baekjoon'), '백준 프로필')
         if boj:
@@ -460,19 +650,34 @@ class Portfolio:
             links.append(f'<a href="{escape(url)}" target="_blank" rel="noopener">'
                          f'{span("profileLinks", i, "title", text(row, "title", True))}</a>')
         links = ''.join(f'<li>{a}</li>' for a in links if a)
-        identity = (f'<aside class="identity">{pic}<h2>{span("profile", 0, "name", self.name)}</h2>'
-                    f'<p class="role">{span("profile", 0, "role", role)}</p>'
-                    + self.profile_credentials() + self.profile_skills() + (f'<ul class="profile-links">{links}</ul>' if links else '') + '</aside>')
-        return f'<article class="profile-detail">{identity}{self.profile_activity(root)}</article>'
+        return f'<ul class="profile-links">{links}</ul>' if links else ''
+
+    def profile_identity(self):
+        role = text(self.profile, 'role') or 'AI Game Maker'
+        pic = self.image(self.profile, '', '', 'profile', 0, css='portrait')
+        link_row = self.profile_link_row()
+        return (f'<div class="identity"><a class="identity-link" href="#profile">{pic}'
+                f'<div><h2>{span("profile", 0, "name", self.name)}'
+                '<span class="identity-arrow" aria-hidden="true">↓</span></h2>'
+                f'<p class="role">{span("profile", 0, "role", role)}</p></div></a>{link_row}</div>')
+
+    def profile_content(self):
+        # The section restates who this is: a large photo and the same links as the hero.
+        pic = self.image(self.profile, '', self.name, 'profile', 0, css='portrait-large')
+        sidebar = pic + self.profile_link_row() + self.profile_credentials() + self.profile_skills()
+        if sidebar:
+            sidebar = f'<div class="profile-sidebar">{sidebar}</div>'
+        return (f'<section id="profile" aria-labelledby="profile-title">'
+                f'<h2 id="profile-title" class="section-title">{self.label("profileTitle")}</h2>'
+                f'<div class="profile-detail">{sidebar}{self.profile_activity("")}</div>'
+                '<a class="back-projects" href="#projects">↑ 작품으로</a></section>')
 
     def render(self):
         intro = text(self.profile, 'intro') or self.name
-        hero = ('<details class="profile-disclosure" id="profile"><summary class="intro"><h1><span class="intro-link">'
-                f'{span("profile", 0, "intro", intro)}<small>'
-                f'<span class="when-closed">{self.label("viewProfile")}</span>'
-                f'<span class="when-open">{self.label("hideProfile")}</span></small></span></h1></summary>'
-                '<div class="disclosure-body">' + self.profile_content() + '</div></details>')
-        self.page('index.html', '', f'{self.name} | 포트폴리오', intro, hero + self.highlights() + self.catalog())
+        hero = (f'<header class="intro"><h1>{span("profile", 0, "intro", intro)}</h1>'
+                f'{self.profile_identity()}</header>')
+        self.page('index.html', '', f'{self.name} | 포트폴리오', intro,
+                  hero + self.highlights() + self.catalog() + self.profile_content())
 
 
 def build(data, out, site=SITE, editor_api=''):

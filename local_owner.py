@@ -1,7 +1,9 @@
 """Loopback-only owner API. Serves generated files, never the repository itself."""
 import base64
 import hashlib
+import io
 import json
+import os
 import re
 import secrets
 import threading
@@ -31,7 +33,36 @@ def handler_for(temp, public, bootstrap, *, base=BASE):
         def end_headers(self):
             self.send_header('Cache-Control', 'no-store')
             self.send_header('X-Content-Type-Options', 'nosniff')
+            self.send_header('Accept-Ranges', 'bytes')
             super().end_headers()
+
+        def send_head(self):
+            # Browsers seek in a video by asking for a byte range; answer it so the seek bar works.
+            match = re.fullmatch(r'bytes=(\d*)-(\d*)', self.headers.get('Range', '').strip())
+            path = self.translate_path(self.path)
+            if not match or not os.path.isfile(path) or match[1] == match[2] == '':
+                return super().send_head()
+            size = os.path.getsize(path)
+            if match[1]:
+                start = int(match[1])
+                end = min(int(match[2]), size - 1) if match[2] else size - 1
+            else:
+                start, end = max(0, size - int(match[2])), size - 1  # Suffix range: the last N bytes.
+            if start > end or start >= size:
+                self.send_response(416)
+                self.send_header('Content-Range', f'bytes */{size}')
+                self.send_header('Content-Length', '0')
+                self.end_headers()
+                return None
+            with open(path, 'rb') as f:
+                f.seek(start)
+                body = f.read(end - start + 1)
+            self.send_response(206)
+            self.send_header('Content-Type', self.guess_type(path))
+            self.send_header('Content-Range', f'bytes {start}-{end}/{size}')
+            self.send_header('Content-Length', str(len(body)))
+            self.end_headers()
+            return io.BytesIO(body)
 
         def reply(self, status, obj):
             raw = json.dumps(obj, ensure_ascii=False).encode('utf-8')
@@ -67,7 +98,7 @@ def handler_for(temp, public, bootstrap, *, base=BASE):
                 tmpfile = None
                 try:
                     n = int(self.headers.get('Content-Length', 0))
-                    if not 0 < n <= 8*1024*1024:
+                    if not 0 < n <= 120*1024*1024:
                         raise ValueError('한 번에 저장할 사진 크기를 줄이세요.')
                     req = json.loads(self.rfile.read(n))
                     if req['version'] != revision(raw):
@@ -78,13 +109,16 @@ def handler_for(temp, public, bootstrap, *, base=BASE):
                         raise ValueError('텍스트가 너무 큽니다.')
                     for item in req.get('uploads', []):
                         path = item['path']
-                        if not re.fullmatch(r'/media/pic-[a-f0-9-]{36}\.(png|jpg|webp)', path):
-                            raise ValueError('잘못된 사진 경로입니다.')
+                        if not re.fullmatch(r'/media/(pic-[a-f0-9-]{36}\.(png|jpg|webp)|vid-[a-f0-9-]{36}\.(mp4|webm))', path):
+                            raise ValueError('잘못된 사진·영상 경로입니다.')
                         img = base64.b64decode(item['content'], validate=True)
-                        valid = {'.png': img.startswith(b'\x89PNG\r\n\x1a\n'), '.jpg': img.startswith(b'\xff\xd8\xff'), '.webp': img[:4]==b'RIFF' and img[8:12]==b'WEBP'}
+                        valid = {'.png': img.startswith(b'\x89PNG\r\n\x1a\n'), '.jpg': img.startswith(b'\xff\xd8\xff'), '.webp': img[:4]==b'RIFF' and img[8:12]==b'WEBP',
+                                 '.mp4': img[4:8]==b'ftyp', '.webm': img.startswith(b'\x1aE\xdf\xa3')}
                         dest = site / path.lstrip('/')
-                        if not valid[dest.suffix] or len(img)>2097152 or dest.parent.resolve() != site / 'media':
-                            raise ValueError('2MB 이하의 JPEG, PNG, WebP 사진을 선택하세요.')
+                        video = dest.suffix in ('.mp4', '.webm')
+                        limit = 60*1024*1024 if video else 2097152
+                        if not valid[dest.suffix] or len(img)>limit or dest.parent.resolve() != (site / 'media').resolve():
+                            raise ValueError('60MB 이하의 MP4·WebM 영상을 선택하세요.' if video else '2MB 이하의 JPEG, PNG, WebP 사진을 선택하세요.')
                         dest.parent.mkdir(exist_ok=True)
                         with dest.open('xb') as f:
                             created.append(dest)
