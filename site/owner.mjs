@@ -386,7 +386,7 @@ export async function start(api){
     if(compact){
       // Each filled link becomes its own button on the card: play first, then GitHub.
       const pick=k=>fields.find(f=>f.key===k);
-      fields=[pick('title'),{...pick('category'),label:'설명'},{...pick('url'),label:'플레이 링크'},{...pick('source'),label:'GitHub 링크'},pick('award'),pick('aiChallenge'),pick('challenge')];
+      fields=[pick('title'),pick('cardDescription'),pick('teamSize'),{...pick('url'),label:'플레이 링크'},{...pick('source'),label:'GitHub 링크'},pick('award'),pick('aiChallenge'),pick('challenge')];
     }
     let scalar=draft,focusTarget;const pending=new Map();const form=node('form');const err=node('p','','owner-status');err.setAttribute('role','alert');
     dialog.append(node('h2',groups[key][0]+(i<0?' 추가':' 편집')),form);form.addEventListener('input',()=>dirty=true);
@@ -447,6 +447,10 @@ export async function start(api){
         Object.assign(input,{type:'number',min:'0',max:'100',step:'1'});
         if(row[f.key]==='')delete row[f.key];
       }
+      if(f.type==='count'){
+        Object.assign(input,{type:'number',min:'1',max:'999',step:'1'});
+        if(row[f.key]==='')delete row[f.key];
+      }
       input.value=row[f.key]??'';
       if(key==='labels'){input.placeholder=f.label;if(f.key===focus&&!input.value)input.value=f.label;}
       if(f.type==='url')input.type='url';if(f.type==='slug')input.pattern='[a-z0-9]+(-[a-z0-9]+)*';
@@ -471,7 +475,7 @@ export async function start(api){
       }
       if(prefix+f.key===focus)focusTarget=input;
       input.oninput=()=>{
-        if(f.type==='percent' && input.value==='')delete row[f.key];
+        if((f.type==='percent'||f.type==='count') && input.value==='')delete row[f.key];
         else row[f.key]=input.value;
       };label.append(input);
     }}

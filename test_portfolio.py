@@ -174,8 +174,13 @@ class PortfolioTests(unittest.TestCase):
         self.data['projects'][0]['award'] = '상'
         build(self.data, self.out.parent / 'awarded')
         first = (self.out.parent / 'awarded' / 'index.html').read_text(encoding='utf-8').split('data-slug="a"', 1)[1]
-        self.assertIn('data-edit-field="challenge">잼</span> · <span data-edit-group="projects" '
+        self.assertIn('<strong class="award"><span data-edit-group="projects" '
                       'data-edit-index="0" data-edit-field="award">상</span></strong>', first.split('</li>', 1)[0])
+        self.assertNotIn('data-edit-field="challenge"', first.split('</li>', 1)[0])
+        detail = (self.out.parent / 'awarded' / 'projects' / 'a' / 'index.html').read_text(encoding='utf-8')
+        self.assertIn('<div class="result"><dd><span data-edit-group="projects" data-edit-index="0" '
+                      'data-edit-field="challenge">잼</span> · <span data-edit-group="projects" '
+                      'data-edit-index="0" data-edit-field="award">상</span></dd></div>', detail)
 
     def test_profile_section_title_photo_and_links(self):
         self.data['profile']['github'] = 'https://github.com/someone'
@@ -229,7 +234,7 @@ class PortfolioTests(unittest.TestCase):
 
     def test_award_highlights_and_ai_sections(self):
         self.data['projects'][0].update(feature='2', award='게임잼 특별상', sections=[
-            {'title': 'AI에게 맡긴 것', 'text': '코드 초안'}, {'title': '내가 한 것', 'text': '문제 정의'}])
+            {'title': 'AI 활용', 'style': 'ai', 'text': '코드 초안'}, {'title': '직접 판단한 부분', 'style': 'me', 'text': '문제 정의'}])
         self.data['highlights'] = [{'value': '3', 'label': 'Steam 출시'}]
         build(self.data, self.out)
         home = self.read()
@@ -319,7 +324,7 @@ class PortfolioTests(unittest.TestCase):
 
     def test_project_contribution(self):
         period = '2025.03 – 2025.07 (5개월)'
-        self.data['projects'][0].update(video='https://example.org/v.webm', devPeriod=period, contribution='40',
+        self.data['projects'][0].update(video='https://example.org/v.webm', devPeriod=period, teamSize='3', contribution='40',
                                         contributionAreas=[{'title': '기획', 'value': '100'}, {'title': 'UI', 'value': '35'}],
                                         contributionDetail=' 전투 설계\n  \n<UI> 개선 ')
         self.data['labels'] = {'contributionLabel': '내 기여도'}
@@ -331,11 +336,11 @@ class PortfolioTests(unittest.TestCase):
         self.assertIn('class="overview"', after)
         self.assertNotIn('contribution-placeholder', html)
         self.assertNotIn('data-edit-field="contribution"', block)  # Only the per-part bars are shown.
-        for field, value in [('devPeriod', period), ('contributionAreas.0.title', '기획'),
+        for field, value in [('devPeriod', period), ('teamSize', '3명'), ('contributionAreas.0.title', '기획'),
                              ('contributionAreas.0.value', '100%'), ('contributionAreas.1.title', 'UI'),
                              ('contributionAreas.1.value', '35%')]:
             self.assertIn(f'data-edit-group="projects" data-edit-index="0" data-edit-field="{field}">{value}<', block)
-        for key, label in [('devPeriodLabel', '개발 기간'), ('contributionLabel', '내 기여도'), ('contributionDetailLabel', '상세 기여')]:
+        for key, label in [('devPeriodLabel', '개발 기간'), ('teamSizeLabel', '제작 인원'), ('contributionLabel', '내 기여도'), ('contributionDetailLabel', '상세 기여')]:
             self.assertIn(f'data-edit-group="labels" data-edit-index="0" data-edit-field="{key}">{label}<', block)
         divs = Elements(block).attrs('div')
         meters = [a for a in divs if a.get('role') == 'meter']
@@ -347,6 +352,23 @@ class PortfolioTests(unittest.TestCase):
         self.assertEqual(len(Elements(items).attrs('li')), 2)
         for line in ('전투 설계', '&lt;UI&gt; 개선'):
             self.assertIn(f'<li data-edit-group="projects" data-edit-index="0" data-edit-field="contributionDetail">{line}</li>', items)
+
+    def test_team_size_without_contribution_bars(self):
+        self.data['projects'][0]['teamSize'] = '1'
+        build(self.data, self.out)
+        html = self.read('projects/new-project/index.html')
+        self.assertIn('<section class="contribution">', html)
+        self.assertIn('data-edit-field="teamSize">1명</span>', html)
+        self.assertNotIn('contribution-placeholder', html)
+        self.assertNotIn('role="meter"', html)
+
+    def test_invalid_team_size(self):
+        p = self.data['projects'][0]
+        del p['feature']  # Validate counts even without a detail page.
+        for bad in ('0', '-1', '1.5', '1e1', '3명', ' 3', '03', '1000', 3, None):
+            with self.subTest(value=bad), self.assertRaisesRegex(ValueError, '제작 인원'):
+                p['teamSize'] = bad
+                build(self.data, self.out)
 
     def test_empty_project_contribution(self):
         build(self.data, self.out)

@@ -4,7 +4,7 @@ const choice = (key, label, options) => ({...field(key, label, 'choice'), option
 const title = field('title', '제목', 'text', true);
 const image = field('image', '사진', 'image');
 const labels = {
-  roleLabel:'역할', devPeriodLabel:'개발 기간', contributionLabel:'기여도', contributionDetailLabel:'상세 기여',
+  roleLabel:'역할', devPeriodLabel:'개발 기간', teamSizeLabel:'제작 인원', contributionLabel:'기여도', contributionDetailLabel:'상세 기여',
   allActivities:'이전 활동 더 보기', hideProfile:'프로필 닫기',
   skip:'본문 바로가기', main:'MAIN', projectNav:'프로젝트', archiveNav:'Archive', profileNav:'프로필', activityNav:'활동', viewProfile:'프로필 보기', projects:'프로젝트', awards:'수상', ai:'AI 프로젝트',
   empty:'아직 등록된 항목이 없습니다.', intro:'프로젝트 소개', activity:'활동 소개', github:'GitHub', baekjoon:'solved.ac', live:'사이트 열기',
@@ -14,7 +14,7 @@ const labels = {
   highlights:'한눈에', award:'수상', aiChallengeTag:'AI Challenge', profileTitle:'Profile'
 };
 export const singleton = key => key === 'profile' || key === 'labels';
-export const sections = [title, field('text', '본문', 'long'), image, field('caption', '사진 설명')];
+export const sections = [title, choice('style', '강조 스타일', [['', '기본'], ['ai', '보라색 강조선과 제목'], ['me', '어두운 회색 강조선']]), field('text', '본문', 'long'), image, field('caption', '사진 설명')];
 const blocks = (key, label, itemFields, legend, itemLabel) => ({
   ...field(key, label, 'blocks'), itemFields, legend, itemLabel
 });
@@ -25,8 +25,8 @@ const contributionAreas = blocks('contributionAreas', '분야별 기여도', [
 export const groups = {
   profile: ['프로필', [field('name', '이름', 'text', true), field('handle', '활동명'), field('role', '직무 (기본: AI Game Maker)'), field('intro', '소개', 'long'), field('github', 'GitHub', 'url'), field('baekjoon', 'solved.ac 프로필 주소', 'url'), field('baekjoonTier', 'solved.ac 티어 (예: Gold IV)'), image]],
   labels: ['화면 문구', Object.entries(labels).map(([k,v]) => field(k,v))],
-  projects: ['프로젝트', [title, field('slug', '상세 주소 (예: my-game)', 'slug', true), choice('feature', '작품 단계', [['','그 밖의 작품'],['1','대표작'],['2','주목할 작품']]), field('category', '분류'), field('role', '내 역할'),
-    field('devPeriod', '개발 기간 (예: 2025.03 – 2025.07)'), contributionAreas, field('contributionDetail', '상세 기여 (한 줄에 하나)', 'long'),
+  projects: ['프로젝트', [title, field('slug', '상세 주소 (예: my-game)', 'slug', true), choice('feature', '작품 단계', [['','그 밖의 작품'],['1','대표작'],['2','주목할 작품']]), field('category', '상세페이지 분류'), field('cardDescription', '카드 설명 (게임 내용만)'), field('role', '내 역할'),
+    field('devPeriod', '개발 기간 (예: 2025.03 – 2025.07)'), field('teamSize', '제작 인원 (본인 포함)', 'count'), contributionAreas, field('contributionDetail', '상세 기여 (한 줄에 하나)', 'long'),
     field('outcome', '대표 성과 한 줄'), field('award', '수상 (있을 때만)'), choice('aiChallenge', 'AI 대회 작품', [['','아님'],['1','AI 대회 출품작']]), field('challenge', '출품 대회 (예: Unity AI Game Jam)'), field('summary', '소개', 'long'), image, screens, field('video', '영상 (YouTube 또는 https MP4·WebM)', 'video'), field('videoAt', '영상 위치 (0이 맨 앞, 미디어 순서를 끌어서 바꾸면 자동)', 'position'), field('url', '실행 / 사이트 링크', 'url'), field('source', '소스 링크', 'url'), blocks('sections', '상세 본문 단락', sections, '상세 단락', '단락')]],
   profileLinks: ['프로필 링크', [title, field('url', '주소', 'url', true)]],
   credentials: ['학력·교육', [field('title', '이름 (예: 세종대학교 컴퓨터공학과)', 'text', true), field('period', '기간 (예: 2020~)'), field('text', '상태 (예: 재학, 수료)')]],
@@ -72,6 +72,10 @@ export function validate(data) {
       if (f.type === 'percent' && v !== undefined && v !== '' &&
           (typeof v !== 'string' || !/^[0-9]+$/.test(v) || Number(v) > 100)) {
         fail(`${f.label}: 0부터 100까지의 정수를 입력하세요.`);
+      }
+      if (f.type === 'count' && v !== undefined && v !== '' &&
+          (typeof v !== 'string' || !/^[1-9][0-9]{0,2}$/.test(v))) {
+        fail(`${f.label}: 1부터 999까지의 정수를 입력하세요.`);
       }
       if (v == null || v === '') { if (f.required) fail(`${f.label} 입력이 필요합니다.`); continue; }
       if (typeof v !== 'string' || !v.trim() || v.length > 65000) fail(`${f.label} 값을 확인하세요.`);

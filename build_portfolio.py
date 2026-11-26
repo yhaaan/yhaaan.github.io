@@ -25,7 +25,7 @@ LABELS = {
     'skills': '스킬', 'toolkit': 'TOOLKIT', 'primary': '많이 해봤어요', 'secondary': '해본 적 있어요',
     'experience': '이력', 'photos': '사진', 'history': '이전 프로필', 'top': '맨 위로 ↑', 'footer': 'Portfolio',
     'highlights': '한눈에', 'award': '수상', 'aiChallengeTag': 'AI Challenge', 'profileTitle': 'Profile',
-    'roleLabel': '역할', 'devPeriodLabel': '개발 기간', 'contributionLabel': '기여도',
+    'roleLabel': '역할', 'devPeriodLabel': '개발 기간', 'teamSizeLabel': '제작 인원', 'contributionLabel': '기여도',
     'contributionDetailLabel': '상세 기여',
 }
 ACTIVITY_KINDS = {'게임잼', '팀 활동', '공모전', '대외활동', '부트캠프', '전시', '동아리', '학력', '해커톤', '교내대회'}
@@ -36,7 +36,7 @@ LINK_KINDS = {
 KNOWN_HOSTS = (('store.steampowered.com', 'Steam에서 보기'), ('onstove.com', '스토브에서 보기'),
                ('play.unity.com', '플레이하기'), ('github.com', 'GitHub'), ('itch.io', 'itch.io에서 보기'))
 DATED = re.compile(r'(\d{4})년\s*(\d{1,2})월\s+(.+)')
-AI_SPLIT = {'AI에게 맡긴 것': 'by-ai', '내가 한 것': 'by-me'}
+SECTION_STYLES = {'ai': 'by-ai', 'me': 'by-me'}
 # Tier names are not shown; they only label the groups for assistive technology.
 TIERS = (('1', 'featured', '대표작'), ('2', 'notable', '주목할 작품'), ('0', 'others', '그 밖의 작품'))
 AI = re.compile(r'(?<![a-z0-9])ai(?![a-z0-9])|인공\s*지능', re.I)
@@ -63,6 +63,15 @@ def percent(row, key, required=False):
     return int(m[1])
 
 
+def team_size(row):
+    raw = row.get('teamSize', '')
+    if raw == '':
+        return None
+    if not isinstance(raw, str) or not re.fullmatch(r'[1-9][0-9]{0,2}', raw):
+        raise ValueError('제작 인원: 본인을 포함한 1부터 999까지의 정수를 입력하세요.')
+    return int(raw)
+
+
 def project_contribution(row):
     blocks = row.get('contributionAreas', [])
     if not isinstance(blocks, list):
@@ -73,7 +82,7 @@ def project_contribution(row):
             raise ValueError('분야별 기여도 항목을 확인하세요.')
         areas.append((text(block, 'title', True), percent(block, 'value', required=True)))
     lines = [line.strip() for line in text(row, 'contributionDetail').splitlines() if line.strip()]
-    return text(row, 'devPeriod'), percent(row, 'contribution'), areas, lines
+    return text(row, 'devPeriod'), team_size(row), percent(row, 'contribution'), areas, lines
 
 
 def youtube_id(parsed):
@@ -331,8 +340,8 @@ class Portfolio:
         return (f'<section class="media-gallery" aria-label="{escape(title)} 미디어"><div class="media-stage">'
                 f'{"".join(slides)}{arrows}</div>{strip}</section>')
 
-    def contribution_block(self, i, period, overall, areas, lines):
-        if not period and not areas and not lines:
+    def contribution_block(self, i, period, size, overall, areas, lines):
+        if not period and size is None and not areas and not lines:
             return (f'<button type="button" class="contribution-placeholder" {mapping("projects", i, "devPeriod")}>'
                     '개발 기간·기여도 입력</button>')
 
@@ -345,6 +354,7 @@ class Portfolio:
         if period:
             cells.append(f'<div><h2>{self.label("devPeriodLabel")}</h2><p class="contribution-period">'
                          f'{span("projects", i, "devPeriod", period)}</p></div>')
+        count = span('projects', i, 'teamSize', f'{size}명' if size is not None else '—')
         # No single overall figure: the contribution reads as one bar per part (개발, 기획).
         if areas:
             rows = []
@@ -354,8 +364,12 @@ class Portfolio:
                 number = span('projects', i, prefix + 'value', f'{value}%')
                 bar = meter(prefix + 'value', value, title + ' ' + self.labels['contributionLabel'])
                 rows.append(f'<li>{name}{bar}{number}</li>')
-            heading = f'<h2>{self.label("contributionLabel")}</h2>'
+            heading = (f'<div class="contribution-heading"><h2>{self.label("contributionLabel")}</h2>'
+                       f'<p class="production-size">{self.label("teamSizeLabel")}{count}</p></div>')
             cells.append(f'<div class="contribution-areas">{heading}<ul>{"".join(rows)}</ul></div>')
+        elif size is not None:
+            cells.append(f'<div><h2>{self.label("teamSizeLabel")}</h2>'
+                         f'<p class="contribution-period">{count}</p></div>')
         grid = f'<div class="contribution-grid">{"".join(cells)}</div>' if cells else ''
         detail = ''
         if lines:
@@ -383,6 +397,7 @@ class Portfolio:
         for j, block in enumerate(row.get('sections') or []):
             prefix = f'sections.{j}.'
             heading, body = text(block, 'title', True), text(block, 'text')
+            style = SECTION_STYLES.get(text(block, 'style'), '')
             h = span(group, i, prefix + 'title', heading)
             b = span(group, i, prefix + 'text', body)
             events = timeline(body)
@@ -391,20 +406,21 @@ class Portfolio:
                 dated = True
                 facts.extend(f'<div class="event"><dt>{when}</dt><dd {mapping(group, i, prefix + "text")}>'
                              f'{escape(what)}</dd></div>' for when, what in events)
-            elif (heading not in AI_SPLIT and not block.get('image') and not block.get('caption')
+            elif (not style and not block.get('image') and not block.get('caption')
                   and '\n' not in body and len(body) <= 80):
                 facts.append(f'<div><dt>{h}</dt><dd>{b}</dd></div>')
             else:
                 cap = ''
                 if block.get('caption') and not block.get('image'):
                     cap = f'<p>{span(group, i, prefix + "caption", text(block, "caption"))}</p>'
-                css = ' ' + AI_SPLIT[heading] if heading in AI_SPLIT else ''
+                css = ' ' + style if style else ''
                 prose.append(f'<section class="prose{css}"><h2>{h}</h2><p>{b}</p>{cap}</section>')
         if not dated:
             # Without a dated record the one-line outcome or award is the only proof of results.
             for key in ('outcome', 'award') if project else ('award',):
                 if text(row, key):
-                    facts.append(f'<div class="result"><dd>{e(key)}</dd></div>')
+                    event = f'{e("challenge")} · ' if project and key == 'award' and text(row, 'challenge') else ''
+                    facts.append(f'<div class="result"><dd>{event}{e(key)}</dd></div>')
         subtitle = f'<p class="subtitle">{e(meta_key)}</p>' if meta else ''
         lede = f'<p class="lede">{e(desc_key)}</p>' if desc else ''
         links = ''.join(actions)
@@ -444,12 +460,13 @@ class Portfolio:
         cover, cover_key = first_image(row)
         pic = self.image({'image': cover}, '', '', 'projects', i, cover_key) if large and cover else ''
         info = []
-        if text(row, 'category'):
-            info.append(f'<small class="work-category">{e("category")}</small>')
+        description_key = 'cardDescription' if text(row, 'cardDescription') else 'category'
+        if text(row, description_key):
+            info.append(f'<small class="work-category">{e(description_key)}</small>')
         if large:
             if text(row, 'summary'):
                 info.append(f'<p class="work-summary">{e("summary")}</p>')
-            elif not any(text(row, k) for k in ('category', 'outcome', 'award')):
+            elif not any(text(row, k) for k in ('cardDescription', 'category', 'outcome', 'award')):
                 info.append('<div class="work-summary">' + hint('summary', '소개·성과 입력 예정') + '</div>')
             for j, block in enumerate(row.get('sections') or []):
                 if text(block, 'title') in ('팀 구성', '개발 인원', '개발 인원과 역할'):
@@ -460,10 +477,9 @@ class Portfolio:
         if rich and text(row, 'outcome'):
             # Cards stay short: the role is read on the detail page.
             info.append(f'<strong class="outcome">{e("outcome")}</strong>')
-        # The green line is for awards only; an AI challenge work names its event before the prize.
+        # Keep the card's green line focused on the prize; event data stays in the editor.
         if rich and text(row, 'award'):
-            event = f'{e("challenge")} · ' if is_ai_challenge(row) and text(row, 'challenge') else ''
-            info.append(f'<strong class="award">{event}{e("award")}</strong>')
+            info.append(f'<strong class="award">{e("award")}</strong>')
         # Featured works open their detail page; the rest open their playable build
         # or source directly, and stay unlinked until the owner adds either one.
         attrs = f'class="tile tone-{i % 4}" data-record="projects" data-index="{i}"'
@@ -485,7 +501,7 @@ class Portfolio:
             if links:
                 card_links = f'<span class="link-buttons card-links">{link_buttons(row, links)}</span>'
         # Works made for an AI jam, hackathon or contest carry an "AI Challenge" band in the
-        # cover's top-right corner; the event's name sits with the award below.
+        # cover's top-right corner.
         badge = ''
         if is_ai_challenge(row):
             badge = f'<span class="ai-tag">{self.label("aiChallengeTag")}</span>'

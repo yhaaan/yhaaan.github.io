@@ -15,24 +15,18 @@
       "title": "CollaZoo",
       "category": "동물 파츠 조합 퍼즐 플랫포머 · Unity",
       "award": "Unity CLI Special Prize",
-      "summary": "머리·몸통·다리를 무작위 동물 파츠로 조립한 캐릭터로 퍼즐을 푸는 2D 플랫포머입니다. Codex로 직접 만든 Unity 개발 에이전트와 함께 제작했습니다. Unity AI Game Jam Unity CLI Special Prize 수상작입니다.",
+      "summary": "무작위 동물 파츠로 머리·몸통·다리를 조합해 퍼즐을 푸는 스테이지형 2D 플랫포머 게임",
       "source": "https://github.com/yhaaan/Unity_AI_Game_Jam_07",
       "sections": [
         {
-          "title": "문제 정의",
-          "text": "같은 퍼즐에 모든 조합이 쓰는 공용 해법과, 맞는 파츠를 가진 조합만 쓰는 빠른 특수 경로를 함께 둔다.\n이를 위해 파츠 18종의 수치와 능력이 Google Sheets 기획 시트와 Unity 데이터에서 항상 같아야 했다."
+          "title": "AI 활용",
+          "style": "ai",
+          "text": "· Codex: OpenAI Responses API 기반 로컬 Unity 개발 에이전트 ‘Unity Game Jam’ 제작 — 작업별 세션 분리, 프로젝트 파일 인덱싱, Unity CLI 연동, 대화·토큰 기록 저장\n· 개발 에이전트(gpt-6.2-astra): 시트 9열 → ScriptableObject 18개 임포터, 활강·부력·과학자 통과 능력, 7개 스테이지 진행, 카드식 방향 전환 구현\n· Unity AI CLI: 효과음 WAV 26개 생성, 빌드 및 검증 자동화"
         },
         {
-          "title": "AI에게 맡긴 것",
-          "text": "· Codex: OpenAI Responses API 기반 로컬 Unity 개발 에이전트 ‘Unity Game Jam’ 제작 — 작업별 세션 분리, 프로젝트 파일 인덱싱, Unity CLI 연동, 대화·토큰 기록 저장\n· 개발 에이전트(gpt-6.2-astra): 시트 9열 → ScriptableObject 18개 임포터, 활강·부력·과학자 통과 능력, 7개 스테이지 진행, 카드식 방향 전환 구현\n· Unity AI CLI: 효과음 WAV 26개 생성, 소품 이미지 배경 제거"
-        },
-        {
-          "title": "내가 한 것",
-          "text": "· 작업을 목적별 세션 10개로 나누고 요청 41건으로 지시\n· 조합 무게 −6~6에 따른 점프·파워 표와 공통 이동속도 결정\n· 결과 판단과 재지시: 효과음 1차 결과를 반려하고 아트 스타일·보행음 기준으로 15종 재생성, 점프음은 첫 타격음 0.12초만 쓰도록 수정, 활강은 Y축 고정에서 서서히 하강으로 변경\n· 카드 뒤집기 연출 기준(0.08초, 입력 딜레이 없음)과 검증 기준(시트-에셋 일치, 콜라이더 유지) 설정"
-        },
-        {
-          "title": "결과",
-          "text": "Unity AI Game Jam Unity CLI Special Prize\n7개 스테이지 · 파츠 216개 조합 · Windows 빌드\nPlayerPartBuildTests 10건 통과, 개발 세션 로그와 빌드 기록을 심사 자료로 제출"
+          "title": "설계·검수",
+          "style": "me",
+          "text": "· 작업을 목적별 세션 10개로 나누고 요청 41건으로 지시\n· 조합 무게 −6~6에 따른 점프·파워 표와 공통 이동속도 결정\n· 결과 판단과 재지시: 효과음 1차 결과를 반려하고 아트 스타일·보행음 기준으로 15종 재생성, 점프음은 첫 타격음 0.12초만 쓰도록 수정, 활강은 Y축 고정에서 서서히 하강으로 변경\n· 레벨을 직접 플레이하며 동작과 재미 검증"
         }
       ],
       "feature": "1",
@@ -41,11 +35,11 @@
       "contributionAreas": [
         {
           "title": "개발",
-          "value": "60"
+          "value": "80"
         },
         {
           "title": "기획",
-          "value": "70"
+          "value": "30"
         }
       ],
       "screens": [
@@ -65,33 +59,34 @@
       "url": "https://play.unity.com/ko/games/753d3bc6-297f-460f-8036-b94006576502/colla-zoo",
       "video": "/media/vid-a089e421-a317-45b3-b428-08d28421990a.mp4",
       "videoAt": "1",
-      "role": "AI 개발 환경 구축 · 게임 시스템 구현 · 파츠 밸런싱",
+      "role": "AI 개발 환경 구축 · 게임 시스템 구현 · 파츠 밸런싱 · 레벨 테스트 및 재미 검증",
       "devPeriod": "2026.11.18 – 2026.11.23",
-      "contributionDetail": "Codex로 OpenAI 기반 로컬 Unity 개발 에이전트 구성: 브라우저 채팅·멀티 세션·프로젝트 인덱스·장기 기억\n동물 파츠 시트 임포트와 18개 파츠 카탈로그, 무작위 파츠 조합과 조합 계산 검증\n파츠 무게로 점프·파워를 정하는 규칙, 활강·부력·과학자 통과 능력\n7개 스테이지 진행·레벨 선택, 드론·과학자 적, 타이틀·엔딩 흐름\n효과음 생성·연결과 파츠·스테이지 검증 테스트, Windows/Mac 빌드"
+      "contributionDetail": "",
+      "outcome": "",
+      "teamSize": "4",
+      "cardDescription": "동물 파츠 조합 퍼즐 플랫포머"
     },
     {
       "slug": "ratsgo-5000",
       "title": "와... 너 정말, **핵심**을 찔렀어.",
       "category": "AI 대화 미니게임 · Unity",
       "award": "챌린저 상",
-      "summary": "아직 학습이 끝나지 않은 인공지능 대신 사람들의 말에 답하는 대화 게임입니다. 부탁 하나에 답하려면 머릿속 회로 같은 미니게임을 통과해야 합니다. NHN 게임 × AI 해커톤 챌린저 상 수상작입니다.",
+      "summary": "미니게임을 풀며 미완성 AI 대신 사람들의 말과 부탁에 답하는 대화 게임",
       "source": "https://github.com/k56754665/Ratsgo-5000",
       "sections": [
-        {
-          "title": "팀 구성",
-          "text": "3인 개발 · 기획·개발 2명, 아트 1명"
-        },
         {
           "title": "핵심 루프",
           "text": "말 걸기 → 자유 입력 대화 → 요청 → 미니게임 → 답신 → 토큰 → 시냅스 성장\n플레이어는 입력창에 무엇이든 쓸 수 있고, 유의미한 대화가 3회 오가면 상대가 본래 부탁을 꺼낸다."
         },
         {
-          "title": "AI에게 맡긴 것",
-          "text": "· 게임 안: 자유 입력에 대한 인물의 응답 생성과, 그 말이 대화로 성립했는지 판정\n· 개발: 주석·커밋·폴더 규칙 문서를 사람과 AI가 같은 기준으로 사용"
+          "title": "AI 활용",
+          "style": "ai",
+          "text": "· 게임 안: 자유 입력에 대한 인물의 응답 생성과 대화 성립 여부 판정\n· 개발: 주석·커밋·폴더 규칙 문서를 사람과 AI가 같은 기준으로 사용\n· 미니게임 5종 구현: 선택지 고르기·타자 입력·디버깅·번역·수학 풀이\n· 요청 큐·인내 게이지·루프 컨트롤러와 미니게임 처리 슬롯 구현\n· 타이틀 명령 입력·로고·인트로 영상, 시냅스 강화 트리와 노드 연출\n· 토큰 획득 연출과 엔딩 연출 구현\n· 가상 앱 창·계산기 드래그 등 플레이 편의 개선\n· 대화 규칙 판정과 대화 재등장 버그 수정, 불필요한 미니게임·가상 앱 정리\n· 구글 시트 연동과 잡담 3회 뒤 요청으로 이어지는 대화 루프 구현"
         },
         {
-          "title": "내가 한 것",
-          "text": "· 타이틀 명령 입력·로고·인트로 영상 연출\n· 회로 강화를 거쳐야 다음 모델이 열리는 시냅스 강화 트리와 노드 연출\n· 토큰 획득 연출, 엔딩 연출과 엔딩 시놉시스 문서\n· 대화 규칙 판정과 대화 재등장 버그 수정, 유형별 미니게임·가상 앱 걷어내기\n· Windows 실행 빌드"
+          "title": "설계·검수",
+          "style": "me",
+          "text": "· 게임 데모 기획서 작성과 시냅스 노드 14개 데이터 설계\n· 대화 데이터 구조 확정과 잡담 3회 뒤 요청이 나오는 대화 흐름 설계\n· 엔딩 시놉시스 문서 작성\n· 직접 플레이하며 미니게임·대화 흐름·연출 동작 테스트"
         }
       ],
       "feature": "1",
@@ -104,7 +99,7 @@
         },
         {
           "title": "기획",
-          "value": "70"
+          "value": "40"
         }
       ],
       "screens": [
@@ -132,15 +127,28 @@
       ],
       "video": "/media/vid-b90ece4c-c86c-4c9e-bc56-5e2d6003c5a3.mp4",
       "videoAt": "1",
-      "role": "기획 · 미니게임·대화 루프 구현",
+      "role": "기획 · AI 협업 개발 · 플레이 테스트",
       "devPeriod": "2026.09.04 – 2026.09.05 (2일)",
-      "contributionDetail": "게임 데모 기획서 작성과 시냅스 노드 14개 데이터 설계\n미니게임 5종 구현: 선택지 고르기·타자 입력·디버깅·번역·수학 풀이\n요청 큐·인내 게이지·루프 컨트롤러와 미니게임 처리 슬롯\n대화 SO 구조 확정과 구글 시트 연동, 잡담 3회 뒤 요청이 나오는 대화 루프\n가상 앱 창·계산기 드래그 등 플레이 편의와 버그 수정"
+      "contributionDetail": "",
+      "teamSize": "3",
+      "cardDescription": "AI 대화 미니게임"
     },
     {
       "sections": [
         {
-          "title": "팀 구성",
-          "text": "3인 개발"
+          "title": "AI 활용",
+          "style": "ai",
+          "text": "· ChatGPT 웹: 필요한 상황마다 개별 프롬프트를 작성하고 답변을 참고하며 개발을 보조적으로 진행"
+        },
+        {
+          "title": "구현",
+          "style": "me",
+          "text": "· 낚시 미니게임: 관성에 따라 움직이는 조작 바, 불규칙하게 이동하는 타깃, 겹침 판정과 포획 게이지 구현\n· 미니게임 시작·종료와 성공·실패 화면을 연결하고, 동물에 따라 이미지와 난이도가 바뀌도록 구성\n· 타이틀·엔딩 장면과 연출, 목표 금액 달성 시 엔딩으로 이어지는 흐름 구현\n· 기존 효과음·BGM의 재생 관리, 버튼 클릭음 연결과 이미지·폰트 적용"
+        },
+        {
+          "title": "설계·검수",
+          "style": "me",
+          "text": "· 포획 시작 게이지를 30%로 설정하고, 타깃을 따라갈 때와 놓칠 때의 게이지 증감률 조정\n· 동물 등급에 따른 난이도 상승폭과 타깃의 이동속도·가속도 조정\n· 효과음과 배경음악의 음량을 나누어 조정"
         }
       ],
       "title": "천만해요, 순천만",
@@ -152,7 +160,7 @@
       "contributionAreas": [
         {
           "title": "개발",
-          "value": "27"
+          "value": "33"
         },
         {
           "title": "기획",
@@ -184,24 +192,28 @@
       "url": "",
       "source": "https://github.com/k56754665/SuncheonGameJam",
       "category": "순천만 생태 미니게임 · Unity",
-      "summary": "순천 AI 게임잼에서 3인이 3일 동안 만든 게임입니다. 미니게임과 동물 도감으로 순천만을 담았고, 특별상을 받았습니다.",
-      "role": "미니게임·UI·사운드 구현 · 밸런싱",
+      "summary": "미니게임으로 순천만의 동물을 포획하고 도감을 채우는 게임",
+      "role": "미니게임·UI 개발 · 효과음·BGM 적용 및 재생 제어 · 밸런싱",
       "devPeriod": "2025.09.26 – 2025.09.28 (3일)",
-      "contributionDetail": "미니게임 구현과 성공·실패 결과 UI\n타이틀 씬 제작과 타이틀 연출\n사운드 적용·조정, 이미지와 폰트 적용\n1차 밸런싱"
+      "contributionDetail": "",
+      "teamSize": "5",
+      "cardDescription": "순천만 생태 미니게임"
     },
     {
       "sections": [
         {
-          "title": "팀 구성",
-          "text": "2인 개발 · 기획·시스템 1명, UI·연출·사운드 1명"
+          "title": "AI 활용",
+          "style": "ai",
+          "text": "· 프로젝트 규칙과 작업 기준을 문서화하고, AI 에이전트와 게임 시스템 구현·코드 변경 작업 진행\n· 오목 턴 진행과 자동 전투, 다섯 목 유지 여부를 판단하는 승리 조건 구현\n· 탱커·딜러·힐러 등 역할군과 컴퓨터 상대의 공격·방어·치유 판단 구현\n· 역할군 아이콘과 피해량 표시 등 전투 정보를 전달하는 연출 구현"
         },
         {
-          "title": "AI 협업",
-          "text": "저장소 규칙 문서(AGENTS.md)와 커밋 컨벤션을 먼저 정하고, 구현과 Git 작업을 AI 에이전트에게 맡겨 5일 동안 커밋 65건으로 완성했습니다."
+          "title": "설계·검수",
+          "style": "me",
+          "text": "· 오목과 상점·자동 전투를 결합한 게임 규칙 및 기획서 작성: 15×15 보드, 3판 2선승, 다섯 목 유지 승리\n· 탱커·딜러·힐러의 역할을 나누고, 유닛 조합과 배치에 따라 전투 양상이 달라지도록 설계\n· 5칸 상점과 리롤 경제, 상점 등급 제한과 치유사의 회복량 등 밸런스 조정"
         },
         {
-          "title": "제출 이후",
-          "text": "제출 후 PvP 모드를 추가로 구현해 itch.io에 공개했습니다."
+          "title": "추가 개발",
+          "text": "사전과제 제출 후 PvP 대전 모드 추가"
         }
       ],
       "title": "오목 히어로즈",
@@ -212,7 +224,7 @@
       "contributionAreas": [
         {
           "title": "개발",
-          "value": "50"
+          "value": "75"
         },
         {
           "title": "기획",
@@ -241,24 +253,33 @@
       "video": "/media/vid-8bb77b5b-1fe0-4c06-a8cb-b585e69d842f.mp4",
       "videoAt": "1",
       "category": "오목 + 오토배틀 전략 · Unity · WebGL",
-      "role": "기획 · 게임 시스템·COM AI 구현 · 밸런싱",
-      "summary": "상점에서 역할이 다른 오목알을 골라 배치하고, 자동 전투로 상대 진형을 무너뜨리며 먼저 다섯 목을 완성하는 전략 게임입니다. 구현과 Git 작업은 AI 에이전트와 함께 진행했습니다.",
+      "role": "기획 · AI 협업 개발 · 밸런싱",
+      "summary": "탱커·딜러·힐러 등 역할이 다른 오목알을 상점에서 구매하고, 각 유닛의 능력과 진형을 고려해 전략적으로 배치하는 오목·오토배틀 게임\n자동 전투로 상대 진형을 무너뜨리는 동시에 아군 오목알을 지켜 다섯 목을 유지하는 승리 구조",
       "devPeriod": "2026.08.06 – 2026.08.10 (5일)",
-      "contributionDetail": "오목 + 상점 오토배틀 기획서 작성: 15×15 자유룰, 3판 2선승, 5목 유지 승리, 5칸 상점·리롤 경제\n기본 오목 턴 시스템과 오토배틀 MVP 구현\n5목 생존 전투 판정과 탱커·딜러·힐러 등 역할군 설계·추가\n오목 COM: 공격·방어 수 판단, 상황별 유닛 선택, 치유 판단 개선\n상점 등급 제한과 치유사 회복량 등 밸런스 조정\n역할군 아이콘·데미지 팝업 연출, WebGL v0.1.0 빌드와 배포"
+      "contributionDetail": "",
+      "teamSize": "3",
+      "cardDescription": "오목 + 오토배틀 전략",
+      "outcome": "NHN 게임×AI 해커톤 참가팀 선발"
     },
     {
       "slug": "stellar-witch",
       "title": "Stellar Witch",
       "category": "인벤토리 관리 로그라이크 · Unity · Steam 출시",
-      "summary": "인벤토리 관리와 회피 액션을 결합한 로그라이크 게임입니다.",
+      "summary": "인벤토리 관리와 회피 액션을 결합한 로그라이크 게임",
       "url": "https://store.steampowered.com/app/3822990/Stellar_Witch/",
       "sections": [
         {
-          "title": "개발 인원",
-          "text": "5인 개발"
+          "title": "구현",
+          "style": "me",
+          "text": "· 인벤토리 격자에 아이템을 배치·회전하고, 배치 미리보기와 상점에서 인벤토리로 이어지는 드래그 구현\n· 상점·보관함과 아이템 정보 UI 연결\n· 튜토리얼과 피해량 표시, 보스 피격 효과, 타이틀·로고 전환 연출 구현\n· Steam 도전과제·통계 연동과 플레이 로그 수집 구현\n· 게임 데이터·설정·언어 선택의 저장 기능 구현"
         },
         {
-          "title": "출시 기록",
+          "title": "설계·검수",
+          "style": "me",
+          "text": "· QA에서 발견한 오류 수정과 튜토리얼 진행 점검"
+        },
+        {
+          "title": "결과",
           "text": "2025년 7월 Steam 출시. 2026년 11월 기준 리뷰 127개, ‘매우 긍정적’."
         }
       ],
@@ -267,11 +288,11 @@
       "contributionAreas": [
         {
           "title": "개발",
-          "value": "16"
+          "value": "40"
         },
         {
           "title": "기획",
-          "value": "10"
+          "value": "20"
         }
       ],
       "screens": [
@@ -299,49 +320,84 @@
       "source": "https://github.com/yhaaan/EpicProject_Team1",
       "role": "시스템·UI 프로그래밍 · 튜토리얼 · Steam 연동",
       "devPeriod": "2025.05.27 – 2025.07.29 (약 2개월)",
-      "contributionDetail": "그리드 시스템과 배치 미리보기·회전, 상점 슬롯에서 그리드까지 이어지는 드래그\n상점 씬과 보관함 시스템, 정보 패널 UI\n튜토리얼 제작과 QA 이슈 처리\n데미지 표기·보스 피격 이펙트, 타이틀·로고 씬과 페이드\nSteamworks 도전과제·통계 연동, 플레이 로그 수집, 세이브·설정·언어 저장\n정식 출시용 초기화 프로세스와 1.0.2·1.0.3 업데이트"
+      "contributionDetail": "",
+      "teamSize": "5",
+      "cardDescription": "인벤토리 관리 로그라이크"
     },
     {
       "slug": "hamstory",
       "title": "HamStory",
       "category": "세로 스크롤 플랫포머 · Unity · 콘솔 출시",
-      "summary": "세로로 스크롤하는 플랫포머 점프 게임입니다.",
+      "summary": "‘햄초’가 해씨별을 향해 계절이 바뀌는 세계를 오르는 2D 픽셀 점프 플랫포머 게임\n힘을 모으는 차징 점프와 대시로 경로를 찾아가고, 바람·사선 타일·얼음 타일을 돌파하며 동물 주민들과 이야기를 나누는 여정",
       "url": "https://store.steampowered.com/app/4008550/Hamstory/",
       "sections": [
         {
-          "title": "팀 구성",
-          "text": "2인 개발 · 프로그래밍 1명, 아트 1명"
+          "title": "AI 활용",
+          "style": "ai",
+          "text": "· 원하는 DOTween 연출을 자연어 프롬프트로 설명해 코드 예시를 얻고 구현에 참고"
         },
         {
-          "title": "전시와 출시",
+          "title": "구현",
+          "style": "me",
+          "text": "· 플레이어 이동·점프·대시와 점프 차징 시스템 구현\n· 동물 주민과의 대화 시스템 구현\n· 바람·사선 타일·얼음 타일 등 이동과 점프에 영향을 주는 기믹 구현\n· 게임 데이터 저장·불러오기와 세이브 포인트 시스템 구현\n· Steam 도전과제와 랭킹 시스템 연동"
+        },
+        {
+          "title": "설계·검수",
+          "style": "me",
+          "text": "· 플레이어 이동·점프·대시의 반응을 세밀하게 조정하며 조작감 개선\n· 점프 차징과 각 이동 기믹이 플레이에 미치는 영향을 확인하고 동작 조정"
+        },
+        {
+          "title": "결과",
           "text": "2024년 5월 PlayX4 전시\n2026년 3월 Steam 출시\n2026년 5월 PlayX4 IGIB 부스 선정\n2026년 6월 콘솔 버전 출시"
         }
       ],
       "feature": "1",
       "outcome": "Steam · 콘솔 출시",
-      "contributionAreas": [],
+      "contributionAreas": [
+        {
+          "title": "개발",
+          "value": "60"
+        },
+        {
+          "title": "기획",
+          "value": "50"
+        }
+      ],
       "screens": [
         {
           "image": "/media/pic-db47f174-bdd5-43a8-80ad-db135938f1c9.png"
         }
-      ]
+      ],
+      "teamSize": "4",
+      "cardDescription": "세로 스크롤 플랫포머",
+      "role": "플레이어 조작·게임플레이 시스템 개발 · 저장 기능 · Steam 연동"
     },
     {
       "slug": "floor",
       "title": "FLOOR",
       "category": "큐브 쌓기 · Unity",
-      "summary": "큐브를 쌓아 올리는 게임입니다.",
+      "summary": "다양한 모양의 블록을 회전·배치하고 그 위로 이동하며 높이 올라가는 3D 블록 쌓기 게임\n턴이 지날수록 차오르는 용암을 피해 다음 발판과 이동 경로를 함께 만들어 가는 플레이",
       "url": "https://play.unity.com/ko/games/517b467b-edfc-47b5-bf8e-95cb2a7b62a6/floor",
       "sections": [
         {
-          "title": "팀 구성",
-          "text": "3인 개발 · 개발 1명, 기획 1명, 아트 1명"
+          "title": "구현",
+          "style": "me",
+          "text": "· 3차원 격자의 블록 점유 상태와 높이를 관리하고, 블록이 착지하면 격자에 맞춰 고정되도록 구현\n· 무작위 블록 선택, 마우스 위치에 따른 배치, 90도 회전과 배치 미리보기 구현\n· 블록이 놓일 위치와 겹치는 개수를 미리 보여주는 하이라이트 표시 구현\n· 카메라 방향을 기준으로 입력을 해석하고, 주변 발판 높이에 맞춰 이동하는 플레이어 조작 구현\n· 블록 배치 턴과 도달 높이·최고 점수, 용암 상승·게임 종료·재시작 처리 구현\n· 카메라 회전·높이 추적과 게임 진행·메뉴 상태 전환 구현"
+        },
+        {
+          "title": "설계·검수",
+          "style": "me",
+          "text": "· 블록을 배치하며 이동 경로를 만드는 게임 규칙 기획\n· 블록이 떨어지는 동안의 이동 제한을 고정 대기시간에서 실제 낙하 상태 기준으로 바꾸어 불필요한 조작 제한 개선"
         }
       ],
       "feature": "1",
       "contributionAreas": [
         {
           "title": "개발",
+          "value": "100"
+        },
+        {
+          "title": "기획",
           "value": "100"
         }
       ],
@@ -357,25 +413,28 @@
         }
       ],
       "source": "https://github.com/yhaaan/Floor_Project",
-      "role": "프로그래밍",
+      "role": "기획 · 게임플레이 시스템 개발",
       "devPeriod": "크래프톤 정글 게임랩 WEEK12 (1주)",
-      "contributionDetail": "Unity로 큐브를 쌓아 올리는 게임 구현 (크래프톤 정글 게임랩 WEEK12)",
+      "contributionDetail": "",
       "video": "https://youtu.be/K7kkkGWsLPA?si=XdTJgKtPMeJfqsu8",
-      "videoAt": "1"
+      "videoAt": "1",
+      "teamSize": "3",
+      "cardDescription": "큐브 쌓기"
     },
     {
       "slug": "snow-love",
       "title": "눈사랑",
       "category": "스토리 선택지 · Unity",
-      "summary": "“눈사람이 녹으면, 봄이 오겠지. 그때 다시 놀자.” 아픈 엄마와의 추억을 눈사람에 담은 2D 스토리 선택지 게임입니다.",
+      "summary": "아픈 엄마와의 추억을 눈사람에 담은 2D 스토리 선택지 게임",
       "source": "https://github.com/yhaaan/snowlove",
       "sections": [
         {
-          "title": "팀 구성",
-          "text": "3인 개발 · 프로그래밍 1명, 아트 1명, 기획 1명"
+          "title": "구현",
+          "style": "me",
+          "text": "· WASD 입력에 따른 캐릭터 이동과 상호작용 입력 처리\n· 마우스로 선택지를 고르고 이야기 진행을 이어가는 선택지 처리 구현\n· 제공된 픽셀 아트 리소스를 게임 장면에 적용"
         },
         {
-          "title": "공모전",
+          "title": "결과",
           "text": "2025년 2월 만들래 10분 게임 콘테스트 10위"
         }
       ],
@@ -405,23 +464,26 @@
         }
       ],
       "url": "https://play.unity.com/en/games/1d1b722c-e0df-481e-96a2-2255d95bd800/snowman",
-      "role": "프로그래밍 (팀 유일 개발자)",
+      "role": "이동·상호작용·스토리 진행 개발",
       "devPeriod": "2025.02 (약 5일)",
-      "contributionDetail": "Unity로 이동·상호작용·선택지 진행 구현 (WASD 이동, E 상호작용, 마우스 선택)\n픽셀 아트 리소스 적용과 WebGL 빌드, 만들래 공모전 제출"
+      "contributionDetail": "",
+      "teamSize": "3",
+      "cardDescription": "스토리 선택지"
     },
     {
       "slug": "bystander",
       "title": "방관자 (Bystander)",
       "category": "선택지 탐험 · Unity",
-      "summary": "빛이 없으면 살 수 없는 세계에서 자원을 아끼며 위험에 빠진 이들을 돕거나 방치하는, 트롤리 딜레마를 담은 2D 탐험 게임입니다.",
+      "summary": "빛이 생존 자원인 세계에서 타인을 돕거나 방치하는 선택을 하는 2D 탐험 게임",
       "source": "https://github.com/yhaaan/bystander",
       "sections": [
         {
-          "title": "팀 구성",
-          "text": "3인 개발 · 프로그래밍 1명, 아트 1명, 기획 1명"
+          "title": "구현",
+          "style": "me",
+          "text": "· WASD 이동과 E키 상호작용, R키로 성냥을 켜는 조작 구현\n· 빛을 생존 자원으로 사용하는 탐험과 상호작용 흐름 구현\n· 키보드로 선택지를 이동·확정하고, 돕기·방치 선택에 따라 이야기 진행이 달라지는 흐름 구현"
         },
         {
-          "title": "공모전",
+          "title": "결과",
           "text": "2025년 2월 만들래 10분 게임 콘테스트 7위"
         }
       ],
@@ -451,20 +513,23 @@
         }
       ],
       "url": "https://play.unity.com/en/games/5b2c0300-c291-4f9b-bd0d-40d489dab8c8/bystander",
-      "role": "프로그래밍 (팀 유일 개발자)",
+      "role": "이동·빛 자원·선택지 진행 개발",
       "devPeriod": "2025.02 (약 5일)",
-      "contributionDetail": "Unity로 탐험·상호작용과 성냥 켜기(빛 자원) 구현\n돕기·방치 선택지와 선택에 따라 달라지는 진행 구현\nWebGL 빌드와 만들래 공모전 제출"
+      "contributionDetail": "",
+      "teamSize": "3",
+      "cardDescription": "선택지 탐험"
     },
     {
       "sections": [],
       "title": "몬스톤",
-      "slug": "monston"
+      "slug": "monston",
+      "teamSize": "4"
     },
     {
       "slug": "nara-price-quiz",
       "title": "나라장터 HOW MUCH?",
       "category": "조달청 · 가격 맞히기 웹게임 · Supabase",
-      "summary": "조달청 나라장터에 등록된 실제 계약단가를 맞히는 웹게임입니다. 2026 조달청 AI 게임·콘텐츠 공모전 출품작입니다.",
+      "summary": "나라장터에 등록된 상품의 실제 계약단가를 맞히는 가격 추측 게임",
       "url": "https://k56754665.github.io/nara-price-quiz/",
       "source": "https://github.com/k56754665/nara-price-quiz",
       "sections": [
@@ -473,95 +538,91 @@
           "text": "104개 문제 중 10문제를 무작위로 출제한다. 정답의 ±10% 안이면 성공이고, 물건마다 최대 3번 추측하며 UP/DOWN과 거리 힌트를 받는다."
         },
         {
-          "title": "내가 한 것",
-          "text": "· Supabase 온라인 랭킹 연결과 기기별 최고 점수 기록\n· 카카오·시스템 공유 버튼\n· 규칙 조정: 시간 모드를 문제 수 선택으로 교체, 10문제·±10%·추측 횟수 조정, 가격 비교 표시\n· 배포마다 에셋 주소 버전 갱신"
+          "title": "AI 활용",
+          "style": "ai",
+          "text": "· Claude Opus 5.5와 기능 개발 협업: Supabase 온라인 랭킹, 카카오·시스템 공유\n· 규칙 변경에 맞춘 게임 코드·서버 채점 SQL·게임 및 DB 테스트 수정\n· 배포 시 JS·CSS·데이터 주소에 커밋 버전을 붙이는 캐시 갱신 구현"
+        },
+        {
+          "title": "설계·검수",
+          "style": "me",
+          "text": "· 시간 제한 모드를 문제 수 선택으로 바꾼 뒤, 104개 문제 중 10개를 무작위로 출제하는 방식으로 정리\n· 정답 허용 오차 ±10%, 추측 기회 3회와 회차별 점수 1,000·800·500점으로 규칙 조정\n· 첫 게임만 랭킹에 등록하던 방식을 매 게임 등록·기기별 최고 기록 보존으로 변경\n· 정답과 입력 금액을 나란히 표시하고 오차율을 보여주도록 개선"
         }
       ],
       "aiChallenge": "1",
-      "challenge": "조달청 AI 공모전"
+      "challenge": "조달청 AI 공모전",
+      "teamSize": "3",
+      "cardDescription": "가격 맞히기 웹게임"
     },
     {
       "slug": "bbangtazia",
       "title": "빵타지아",
       "category": "2D 어드벤처 · Unity",
-      "summary": "빵을 찾아 모험을 떠나는 2D 어드벤처 게임입니다.",
+      "summary": "빵을 찾아 모험을 떠나는 2D 어드벤처 게임",
       "url": "https://play.unity.com/ko/user/e8935228-3e56-486f-b673-03eb7fa772a9",
-      "sections": [
-        {
-          "title": "개발 인원",
-          "text": "3인 개발"
-        }
-      ]
+      "sections": [],
+      "teamSize": "3",
+      "cardDescription": "2D 어드벤처"
     },
     {
       "slug": "delivery",
       "title": "따스로의 딜리버리",
       "category": "물리 기반 캐주얼 · Unity",
-      "summary": "물리 엔진을 활용한 캐주얼 2D 게임입니다.",
+      "summary": "물리 엔진을 활용한 2D 캐주얼 게임",
       "url": "https://play.unity.com/ko/games/00e2249e-4dbf-493e-a4a2-7a969c76fabe/w06",
-      "sections": [
-        {
-          "title": "개발 인원",
-          "text": "4인 개발"
-        }
-      ]
+      "sections": [],
+      "teamSize": "4",
+      "cardDescription": "물리 기반 캐주얼"
     },
     {
       "slug": "undead-samurai",
       "title": "불사의 SAMURAI",
       "category": "보스전 소울라이크 · Unity",
-      "summary": "보스를 격파하는 2D 소울라이크 게임입니다.",
+      "summary": "보스를 격파하는 2D 소울라이크 게임",
       "url": "https://play.unity.com/ko/games/b818e27c-830c-45cd-83a9-9446f482a2b0/w05-undead-samurai",
-      "sections": [
-        {
-          "title": "개발 인원",
-          "text": "5인 개발"
-        }
-      ]
+      "sections": [],
+      "teamSize": "5",
+      "cardDescription": "보스전 소울라이크"
     },
     {
       "slug": "surveillance",
       "title": "Surveillance",
       "category": "관찰 공포 · Unity",
-      "summary": "2D 공포 관찰 게임입니다.",
+      "summary": "관찰을 중심으로 진행하는 2D 공포 게임",
       "url": "https://play.unity.com/ko/games/4e5b793b-ef8e-4fa5-ac0d-8866b4ee8cdf/w04-surveillance",
-      "sections": [
-        {
-          "title": "팀 구성",
-          "text": "4인 개발 · 아트 1명, 기획 1명, 개발 2명"
-        }
-      ]
+      "sections": [],
+      "teamSize": "4",
+      "cardDescription": "관찰 공포"
     },
     {
       "slug": "only-fishing",
       "title": "Only Fishing",
       "category": "낚시 도감 · Unity",
-      "summary": "낚시 도감을 채워 가는 힐링 게임입니다.",
+      "summary": "낚시 도감을 채워 가는 힐링 게임",
       "url": "https://play.unity.com/ko/games/d1051e6e-29a9-4fad-ae7b-49126165e07d/w02",
-      "sections": [
-        {
-          "title": "개발 인원",
-          "text": "1인 개발"
-        }
-      ]
+      "sections": [],
+      "teamSize": "1",
+      "cardDescription": "낚시 도감"
     },
     {
       "sections": [],
       "title": "How Can Make Memories",
-      "slug": "spartagamejam"
+      "slug": "spartagamejam",
+      "teamSize": "5"
     },
     {
       "slug": "dora",
       "title": "DORA",
       "category": "방치형 수집 · Unity",
-      "summary": "수집한 대상을 도감에 등록하는 방치형 게임입니다.",
+      "summary": "수집한 대상을 도감에 등록하는 방치형 게임",
       "source": "https://github.com/yhaaan/Dora",
       "sections": [
         {
-          "title": "개발 인원과 역할",
-          "text": "1인 개발 · 프로그래밍, 일부 아트 작업, 기획"
+          "title": "역할",
+          "text": "프로그래밍, 일부 아트 작업, 기획"
         }
-      ]
+      ],
+      "teamSize": "1",
+      "cardDescription": "방치형 수집"
     }
   ],
   "experience": [

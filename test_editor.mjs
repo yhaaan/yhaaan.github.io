@@ -35,6 +35,14 @@ test('project percentages are integer strings; each contribution area needs a ti
     assert.throws(()=>check({contributionAreas:areas}));
   }
 });
+test('production headcount is an optional positive integer string',()=>{
+  const check=teamSize=>validate({profile:{name:'A'},projects:[{title:'Game',slug:'game',teamSize}]});
+  for(const value of [undefined,'','1','3','999'])check(value);
+  for(const value of ['0','-1','1.5','1e1','3명',' 3','03','1000',3,null]){
+    assert.throws(()=>check(value),/제작 인원/);
+  }
+});
+
 test('video accepts HTTPS files and supported YouTube routes only',()=>{
   const p={title:'Film',slug:'film'},data={profile:{name:'A'},projects:[p]},id='ab-CD_12345';
   for(const path of ['example.org/media.MP4?q=1','example.org/v.webm',`www.youtube.com/watch?v=${id}`,`youtu.be/${id}`,`m.youtube.com/shorts/${id}`,`youtube.com/embed/${id}`]){
